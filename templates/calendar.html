@@ -24,6 +24,12 @@
 
 <h2>{{ year }}年{{ month }}月のカレンダー</h2>
 
+<!-- 月移動ナビゲーション -->
+<div style="margin: 1rem 0;">
+    <a href="/?year={{ prev_year }}&month={{ prev_month }}">← 前月</a> |
+    <a href="/?year={{ next_year }}&month={{ next_month }}">次月 →</a>
+</div>
+
 <table>
     <thead>
         <tr>
