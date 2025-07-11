@@ -1,4 +1,4 @@
-body {
+body { /****ラベルの内側****/
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
     padding: 0;
@@ -6,7 +6,7 @@ body {
     color: #333;
 }
 
-header, footer {
+header, footer {/***ラベル内***/
     background-color: #333;
     color: white;
     padding: 1rem;
@@ -15,4 +15,17 @@ header, footer {
 
 main {
     padding: 2rem;
+}
+
+/***土、日を***/
+th:nth-child(1),
+td:nth-child(n):nth-child(-n+1) {
+  background-color: #ffe5e5;
+  color: red;
+}
+
+th:nth-child(7),
+td:nth-child(n+7):nth-child(n+7) {
+  background-color: #61b8f7;
+  color: rgb(32, 113, 245);
 }
