@@ -25,32 +25,31 @@ def index():
 
 @app.route("/api/calculate", methods=["POST"])
 def calculate():
-    default_value = 1#全てのデフォルトの値
-    data = request.json#jsonを読み込む
-    #static.htmlでinoutされたものたちを呼び出す。
+    default_value = 1
+    data = request.json
+
     weight_raw = data.get("weight", "")
     reps_raw = data.get("reps", "")
     sets_raw = data.get("sets", "")
-    items_raw = data.get("items","")
-    #それぞれの数が入っている場合にはfloatに入力。空ならdefault_valueを入力。
+    item_value_raw = data.get("itemValue", "")  # ← 修正箇所
+
     try:
         weight = float(weight_raw) if weight_raw else default_value
         reps = float(reps_raw) if reps_raw else default_value
         sets = float(sets_raw) if sets_raw else default_value
-        if weight <=0 or reps <= 0 or sets <= 0:
+        if weight <= 0 or reps <= 0 or sets <= 0:
             return jsonify(result="正しい値を入力してください")
-    
-    #数字でない場合に怒る。
+
+        load = weight * reps * sets
+        fruit_info = f"（果物の値: {item_value_raw}）" if item_value_raw else ""
     except ValueError:
         return jsonify(result="数値を入力してください"), 400
 
-    load = weight * reps * sets#運動負荷の計算
-    "items"[items_raw] =load
+    if weight_raw == "" and reps_raw == "" and sets_raw == "":
+        load = 0
 
-    if weight_raw == "" and reps_raw == "" and sets_raw == "":#全部の値が空なら運動負荷に0を返す。
-        load =0
-    return jsonify(result=f"現状約{load:.2f}kgの負荷です。"),200#計算結果を参照し負荷を教える文を保存。
-    
+    return jsonify(result=f"現状約{load:.2f}kgの負荷です。"), 200
+
 
 if __name__ == "__main__":#実行。
     app.run(debug=True)
