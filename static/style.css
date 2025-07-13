@@ -17,7 +17,12 @@ main {
     padding: 2rem;
 }
 
-/***土、日を***/
+div  {
+    background-color: #ffffff;
+    color: rgb(5, 241, 166);
+}
+
+/***土、日を色付きで表現***/
 th:nth-child(1),
 td:nth-child(n):nth-child(-n+1) {
   background-color: #ffe5e5;
@@ -28,4 +33,9 @@ th:nth-child(7),
 td:nth-child(n+7):nth-child(n+7) {
   background-color: #61b8f7;
   color: rgb(32, 113, 245);
+}
+
+td.today { /***今日が土日の場合、todayがオレンジ色で表示されないので、"!important"を使って絶対表示にしている。***/
+  background-color: #ffcc80 !important;
+  font-weight: bold;
 }
