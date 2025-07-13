@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>体重入力フォーム</title>
+</head>
+<body>
+    <h1>体重記録 - 曜日ごと</h1>
+    <form method="POST" action="/submit">
+        <label>曜日:
+            <select name="day" required>
+                <option value="">選択してください</option>
+                <option value="Monday">月</option>
+                <option value="Tuesday">火</option>
+                <option value="Wednesday">水</option>
+                <option value="Thursday">木</option>
+                <option value="Friday">金</option>
+                <option value="Saturday">土</option>
+                <option value="Sunday">日</option>
+            </select>
+        </label>
+        <br><br>
+        <label>体重 (kg): <input type="number" name="weight" step="0.1" required></label>
+        <br><br>
+        <button type="submit">送信</button>
+    </form>
+
+    <br>
+    <a href="/graph">▶ グラフを表示する</a>
+</body>
+</html>

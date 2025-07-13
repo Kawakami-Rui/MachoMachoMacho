@@ -2,10 +2,18 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>グラフ表示</title>
+    <title>体重グラフ</title>
 </head>
 <body>
-    <h1>NumPy + Flask グラフ</h1>
-    <img src="data:image/png;base64,{{ graph }}" alt="グラフ">
+    <h1>毎日の体重の変化の推移</h1>
+
+    {% if graph %}
+        <img src="data:image/png;base64,{{ graph }}" alt="体重グラフ">
+    {% else %}
+        <p>まだデータが入力されていません。</p>
+    {% endif %}
+
+    <br><br>
+    <a href="/">◀ 入力ページに戻る</a>
 </body>
 </html>
