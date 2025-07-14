@@ -77,7 +77,7 @@ def index():
     insert_initial_data()
     return render_template('index.html')
 
-@app.route('/settings')
+@app.route('/exercises')
 def exercise_settings():
     from collections import defaultdict, OrderedDict
     category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
@@ -89,7 +89,7 @@ def exercise_settings():
         if category in groups:
             ordered_groups[category] = groups[category]
     return render_template(
-        'settings.html',
+        'exercises.html',
         grouped_exercises=ordered_groups
     )
 
