@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>BMI記録一覧</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 90%;
+            margin: 0 auto;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #aaa;
+            text-align: center;
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+
+        button {
+            padding: 5px 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        a {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>BMI記録一覧</h1>
+
+    {% if records %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>日付</th>
+                    <th>曜日</th>
+                    <th>体重 (kg)</th>
+                    <th>身長 (cm)</th>
+                    <th>BMI</th>
+                    <th>削除</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in records %}
+                <tr>
+                    <td>{{ r[0] }}</td> <!-- id -->
+                    <td>{{ r[1] }}</td> <!-- date -->
+                    <td>{{ r[2] }}</td> <!-- day -->
+                    <td>{{ r[3] }}</td> <!-- weight -->
+                    <td>{{ r[4] }}</td> <!-- height -->
+                    <td>{{ r[5] }}</td> <!-- bmi -->
+                    <td>
+                        <form action="{{ url_for('delete_record', record_id=r[0]) }}" method="POST" onsubmit="return confirm('この記録を削除しますか？');">
+                            <button type="submit">削除</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="text-align:center;">記録がまだありません。</p>
+    {% endif %}
+
+    <br>
+    <a href="/">◀ 入力ページに戻る</a>
+    <a href="/graph">▶ グラフを表示</a>
+</body>
+</html>

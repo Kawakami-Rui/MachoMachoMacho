@@ -2,33 +2,43 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>体重・身長入力フォーム</title>
+    <title>BMI入力フォーム</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>健康記録 - 曜日ごとの体重・身長</h1>
+    <h1>BMI記録 - 日付と曜日</h1>
     <form method="POST" action="/submit">
+        <label>日付:
+            <input type="date" name="date" required>
+        </label>
+        <br><br>
         <label>曜日:
             <select name="day" required>
                 <option value="">選択してください</option>
-                <option value="Monday">月</option>
-                <option value="Tuesday">火</option>
-                <option value="Wednesday">水</option>
-                <option value="Thursday">木</option>
-                <option value="Friday">金</option>
-                <option value="Saturday">土</option>
-                <option value="Sunday">日</option>
+                <option value="月">月</option>
+                <option value="火">火</option>
+                <option value="水">水</option>
+                <option value="木">木</option>
+                <option value="金">金</option>
+                <option value="土">土</option>
+                <option value="日">日</option>
             </select>
         </label>
         <br><br>
-        <label>体重 (kg): <input type="number" name="weight" step="0.1" required></label>
+        <label>体重 (kg):
+            <input type="number" name="weight" step="0.1" required>
+        </label>
         <br><br>
-        <label>身長 (cm): <input type="number" name="height" step="0.1" required></label>
+        <label>身長 (cm):
+            <input type="number" name="height" step="0.1" required>
+        </label>
         <br><br>
         <button type="submit">送信</button>
     </form>
 
     <br>
     <a href="/graph">▶ グラフを表示する</a>
+    <br>
+    <a href="/records">📋 記録一覧を見る</a>
 </body>
 </html>
