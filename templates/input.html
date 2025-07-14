@@ -2,10 +2,11 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>体重入力フォーム</title>
+    <title>体重・身長入力フォーム</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>体重記録 - 曜日ごと</h1>
+    <h1>健康記録 - 曜日ごとの体重・身長</h1>
     <form method="POST" action="/submit">
         <label>曜日:
             <select name="day" required>
@@ -21,6 +22,8 @@
         </label>
         <br><br>
         <label>体重 (kg): <input type="number" name="weight" step="0.1" required></label>
+        <br><br>
+        <label>身長 (cm): <input type="number" name="height" step="0.1" required></label>
         <br><br>
         <button type="submit">送信</button>
     </form>

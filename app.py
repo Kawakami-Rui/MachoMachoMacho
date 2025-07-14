@@ -1,69 +1,88 @@
-from flask import Flask , render_template
-
-# ==================================================
-# インスタンス生成
-# ==================================================
-app = Flask(__name__)
-
-# ==================================================
-# ルーティング
-# ==================================================
-@app.route('/')
-def hello_world():
-    return render_template('index.html')
-
 from flask import Flask, render_template, request, redirect, url_for
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import io
 import base64
-from collections import OrderedDict
+import sqlite3
+import os
 
 app = Flask(__name__)
+DATABASE = 'bmi.db'
 
-# 入力順を保持する曜日→体重の辞書（最大7件）
-data = OrderedDict()
+# ==================================================
+# DB初期化関数
+# ==================================================
+def init_db():
+    if not os.path.exists(DATABASE):
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE bmi_records (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                day TEXT NOT NULL,
+                weight REAL NOT NULL,
+                height REAL NOT NULL,
+                bmi REAL NOT NULL
+            )
+        ''')
+        conn.commit()
+        conn.close()
 
+# ==================================================
+# 入力ページ
+# ==================================================
 @app.route('/')
 def input_page():
     return render_template('input.html')
 
+# ==================================================
+# 送信処理：DBに追加（履歴すべて残す）
+# ==================================================
 @app.route('/submit', methods=['POST'])
 def submit():
     day = request.form['day']
-    weight = request.form['weight']
+    weight = float(request.form['weight'])
+    height = float(request.form['height'])
+    bmi = round(weight / ((height / 100) ** 2), 2)
 
-    if day and weight:
-        weight = float(weight)
-
-        # すでに同じ曜日があれば削除して順番更新
-        if day in data:
-            del data[day]
-
-        # 上限7件を超えたら最古の曜日を削除
-        if len(data) >= 7:
-            data.popitem(last=False)
-
-        # 新しい曜日を末尾に追加
-        data[day] = weight
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO bmi_records (day, weight, height, bmi)
+        VALUES (?, ?, ?, ?)
+    ''', (day, weight, height, bmi))
+    conn.commit()
+    conn.close()
 
     return redirect(url_for('show_graph'))
 
+# ==================================================
+# グラフ表示（最新7件を表示）
+# ==================================================
 @app.route('/graph')
 def show_graph():
-    if not data:
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+
+    # 最新の7件を新しい順に取得 → 古い順に並び替え
+    c.execute('SELECT day, bmi FROM bmi_records ORDER BY id DESC LIMIT 7')
+    rows = c.fetchall()
+    conn.close()
+
+    if not rows:
         return render_template('graph.html', graph=None)
 
-    labels = list(data.keys())
-    values = list(data.values())
+    rows.reverse()  # 古い順に並べる
+    labels = [row[0] for row in rows]
+    bmis = [row[1] for row in rows]
 
-    # グラフ生成
     fig, ax = plt.subplots()
-    ax.plot(labels, values, marker='o')
-    ax.set_title('dairy weight')
-    ax.set_xlabel('day of week')
-    ax.set_ylabel('weight')
+    ax.plot(labels, bmis, marker='o', color='blue', label='BMI')
+    ax.set_title('最新7件のBMI推移')
+    ax.set_xlabel('曜日')
+    ax.set_ylabel('BMI')
+    ax.legend()
 
     buf = io.BytesIO()
     fig.savefig(buf, format='png')
@@ -73,13 +92,9 @@ def show_graph():
 
     return render_template('graph.html', graph=graph)
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
 # ==================================================
-# 実行
+# アプリ起動時にDB初期化
 # ==================================================
 if __name__ == '__main__':
+    init_db()
     app.run(port=5001, debug=True)
