@@ -1,5 +1,9 @@
-
-<style>
+<!DOCTYPE html>
+<html lang="ja"> <!---java-scriptを使えるようにする--->
+<head>
+  <meta charset="UTF-8">
+    <title>{{ year }}年{{ month }}月のカレンダー</title>
+    <style>
     .today {
         background-color: #ffcc80;
         font-weight: bold;
@@ -20,45 +24,52 @@
     th {
         background-color: #f2f2f2;
     }
-</style>
+    </style>
+</head>
+    <body>
 
-<h2>{{ year }}年{{ month }}月のカレンダー</h2>
+      <h1 id="output" style="white-space: pre-line;" class="famousquotes"></h1> <!----- ランダム文字列の表示場所
+      　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　\nを使ってリスト出力する文章を改行可能にしている。------>
 
-<!-- 月移動ナビゲーション -->
-<div style="margin: 1rem 0;">
-    <a href="/?year={{ prev_year }}&month={{ prev_month }}">← 前月</a> |
-    <a href="/?year={{ next_year }}&month={{ next_month }}">次月 →</a>
-</div>
+      <h2>{{ year }}年{{ month }}月のカレンダー</h2>
 
-<table>
-    <thead>
-        <tr>
-            <th>日</th>
-            <th>月</th>
-            <th>火</th>
-            <th>水</th>
-            <th>木</th>
-            <th>金</th>
-            <th>土</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for week in month_days %}
-        <tr>
-            {% for day in week %}
-                {% if day == 0 %}
-                    <td></td>
-                {% else %}
-                <!-- 今日のページ関連に飛ぶようにしたい部分 -->
-                    <td class="{% if day == now.day and month == now.month and year == now.year %}today{% endif %}">
-                        <a href="https://www.u-ryukyu.ac.jp">{{ day }}</a>
-                    </td>
-                {% endif %}
-            {% endfor %}
-        </tr>
-        {% endfor %}<!--kj助フィじゃいおwgj保イエrh五位-->
-    </tbody>
-</table>
+      <div style="margin: 1rem 0;">
+          <a href="/?year={{ prev_year }}&month={{ prev_month }}">← 前月</a> |
+          <a href="/?year={{ next_year }}&month={{ next_month }}">次月 →</a>
+      </div>
 
-<p>今日を <span style="background-color:#ffcc80;">オレンジ色</span> で表示している</p>
+     <table>
+       <thead>
+          <tr>
+              <th>日</th>
+              <th>月</th>
+              <th>火</th>
+              <th>水</th>
+              <th>木</th>
+              <th>金</th>
+              <th>土</th>
+          </tr>
+       </thead>
+              <tbody>
+                 {% for week in month_days %}
+                <tr>
+                 {% for day in week %}
+                   {% if day == 0 %}
+                      <td></td>
+                  {% else %}
+                      <td class="{% if day == now.day and month == now.month and year == now.year %}today{% endif %}">
+                          <a href="https://www.u-ryukyu.ac.jp">{{ day }}</a>
+                      </td>
+                  {% endif %}
+              {% endfor %}
+          </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+
+  <p>今日を <span style="background-color:#ffcc80;">オレンジ色</span> で表示している</p>
+
+  <!-- staticないのJS読み込み -->
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
 </html>
