@@ -52,10 +52,14 @@
                 <!-- 今日のページ関連に飛ぶようにしたい部分 -->
                     <td class="{% if day == now.day and month == now.month and year == now.year %}today{% endif %}">
                         {# dayが今日の後の日付（未来の日付）かどうかをテンプレートエンジン側で判定 #}
-                        {% if day != 0 and (year > now.year or (year == now.year and month > now.month) or (year == now.year and month == now.month and day <= now.day)) %}
+                        {% if day != 0 and (year == now.year and month < now.month)%}
                           <a href="/diary/{{ year }}/{{ month }}/{{ day }}">{{ day }}</a> {# リンク先を動的に生成 #}
                         {% else %}
-                            {{ day }}
+                            {% if day != 0 and (year == now.year and month == now.month and day <= now.day)%}
+                               <a href="/diary/{{ year }}/{{ month }}/{{ day }}">{{ day }}</a> {# リンク先を動的に生成 #}
+                            {% else %}
+                               {{ day }}
+                            {% endif %}
                         {% endif %}
 </td>
                 {% endif %}
