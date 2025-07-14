@@ -1,0 +1,27 @@
+
+
+{% extends 'base.html' %}
+
+{% block title %}種目の編集{% endblock %}
+
+{% block content %}
+<h2>筋トレ種目を編集</h2>
+<form method="POST">
+    <label for="name">種目名：</label>
+    <input type="text" id="name" name="name" value="{{ exercise.name }}" required>
+    <br>
+    <label for="category">部位：</label>
+    <select id="category" name="category" required>
+        {% for option in ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他'] %}
+            <option value="{{ option }}" {% if exercise.category == option %}selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <label for="detail">詳細な筋肉部位：</label>
+    <input type="text" id="detail" name="detail" value="{{ exercise.detail }}" required>
+    <br>
+    <button type="submit">更新</button>
+</form>
+
+<p><a href="{{ url_for('index') }}">← 戻る</a></p>
+{% endblock %}
