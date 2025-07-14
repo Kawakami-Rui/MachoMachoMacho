@@ -1,52 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}筋トレ種目一覧{% endblock %}
+{% block title %}ホーム{% endblock %}
 
 {% block content %}
-
-<h2>筋トレ種目一覧</h2>
-<style>
-    table {
-        width: 100%;
-        table-layout: fixed;
-        border-collapse: collapse;
-    }
-    th, td {
-        text-align: left;
-        padding: 8px;
-        word-wrap: break-word;
-    }
-    th {
-        background-color: #f2f2f2;
-    }
-</style>
-
-{% for category, exercises in {
-    '胸': exercises_chest,
-    '肩': exercises_shoulder,
-    '腕': exercises_arm,
-    '背中': exercises_back,
-    '腹筋': exercises_abs,
-    '脚': exercises_leg,
-    'その他': exercises_other
-}.items() %}
-    <h3>{{ category }}</h3>
-    {% if exercises %}
-    <table border="1" cellpadding="5" cellspacing="0">
-        <tr>
-            <th>種目名</th>
-            <th>詳細な筋肉部位</th>
-        </tr>
-        {% for exercise in exercises %}
-        <tr>
-            <td>{{ exercise.name }}</td>
-            <td>{{ exercise.detail }}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% else %}
-        <p>登録されていません</p>
-    {% endif %}
-{% endfor %}
-
+<h2>トップページへようこそ！</h2>
+<p>Flaskでチーム開発</p>
+<p>このアプリでは、筋トレ種目の管理や確認ができます。</p>
+<p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
 {% endblock %}

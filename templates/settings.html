@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}筋トレ種目一覧{% endblock %}
+
+{% block content %}
+
+<h2 style="display: flex; justify-content: space-between; align-items: center;">
+    <span>筋トレ種目一覧</span>
+
+</h2>
+<style>
+    table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+    th, td {
+        text-align: left;
+        padding: 8px;
+        word-wrap: break-word;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+<style>
+    .order-buttons {
+        display: inline-block;
+        margin-left: 10px;
+    }
+    .order-buttons button {
+        margin-left: 2px;
+        padding: 2px 6px;
+        font-size: 12px;
+    }
+    .edit-controls {
+        margin-bottom: 10px;
+    }
+</style>
+
+<div style="display: flex; font-weight: bold; padding: 4px 0;">
+    <div style="flex: 1;">主な筋肉部位</div>
+    <div style="flex: 1;">種目名</div>
+    <div style="flex: 1;">詳細な筋肉部位</div>
+</div>
+
+{% for category, exercises in grouped_exercises.items() %}
+    <div class="main-group-section">
+        <div style="font-weight: bold; padding: 6px 0;">
+            {{ category }}
+        </div>
+        <div class="exercise-list">
+            {% for exercise in exercises %}
+            <div style="display: flex; padding: 4px 0;" data-id="{{ exercise.id }}">
+                <div style="flex: 1;"></div>
+                <div style="flex: 1;">{{ exercise.name }}</div>
+                <div style="flex: 1;">{{ exercise.detail }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
+
+<p><a href="{{ url_for('index') }}">← トップメニューへ戻る</a></p>
+
+
+{% endblock %}
