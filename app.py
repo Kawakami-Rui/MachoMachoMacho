@@ -55,7 +55,16 @@ def index():
         next_year=next_year,     # 次月の年
         next_month=next_month    # 次月の月
     )
+@app.route('/diary/<int:year>/<int:month>/<int:day>')
+def show_diary(year, month, day):
+    # URLから日付情報を取得し、文字列にフォーマット
+    # 日付を 'YYYY-MM-DD' 形式にすることで、diary_entries のキーと一致させる
+    date_str = f"{year:04d}-{month:02d}-{day:02d}"
 
+    # diary_entries から日記の内容を取得。存在しない場合はデフォルトメッセージ
+
+    # テンプレートにデータを渡してレンダリング
+    return render_template('diary_page.html', year=year, month=month, day=day, )
 # ==================================================
 # 実行
 # ==================================================
