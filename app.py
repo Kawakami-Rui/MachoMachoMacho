@@ -50,9 +50,9 @@ def submit():
     day = request.form['day']
     weight = float(request.form['weight'])
     height = float(request.form['height'])
-    bmi = round(weight / ((height / 100) ** 2), 2)
+    bmi = round(weight / ((height / 100) ** 2), 2) #round()は四捨五入するための機能。
 
-    # 英語→日本語の曜日マップ
+    # 英語→日本語の曜日マップ。入力しなかった日が自動入力で曜日が英語で入力されるのを防ぐ。
     weekday_map = {
         'Mon': '月', 'Tue': '火', 'Wed': '水', 'Thu': '木',
         'Fri': '金', 'Sat': '土', 'Sun': '日'
@@ -61,16 +61,16 @@ def submit():
     conn = sqlite3.connect(DATABASE)
     c = conn.cursor()
 
-    # 最新日付の取得
+    # 最新日付の取得する。記録されていない日を新しく記録した日と最後に記録した日の差を求めて、記録0として保管する。
     c.execute('SELECT MAX(date) FROM bmi_records')
     latest_date_str = c.fetchone()[0]
 
     if latest_date_str:
         latest_date = datetime.strptime(latest_date_str, '%Y-%m-%d')
         new_date = datetime.strptime(date, '%Y-%m-%d')
-        gap = (new_date - latest_date).days
+        gap = (new_date - latest_date).days # 新しく記録した日付 - 最後に記録した日付
 
-        if gap > 1:
+        if gap > 1: # 空いている日付の記録をすべて0.0にする。
             for i in range(1, gap):
                 fill_date = latest_date + timedelta(days=i)
                 fill_str = fill_date.strftime('%Y-%m-%d')
@@ -82,17 +82,17 @@ def submit():
                     VALUES (?, ?, ?, ?, ?)
                 ''', (fill_str, fill_day, 0.0, 0.0, 0.0))
 
-    # 同じ日付は上書き、それ以外は挿入
+    # 同じ日付は更新、それ以外は追加する。
     c.execute('SELECT id FROM bmi_records WHERE date = ?', (date,))
     existing = c.fetchone()
 
-    if existing:
+    if existing: # 更新
         c.execute('''
             UPDATE bmi_records
             SET day = ?, weight = ?, height = ?, bmi = ?
             WHERE date = ?
         ''', (day, weight, height, bmi, date))
-    else:
+    else: # 追加
         c.execute('''
             INSERT INTO bmi_records (date, day, weight, height, bmi)
             VALUES (?, ?, ?, ?, ?)
@@ -109,18 +109,18 @@ def submit():
 # ==================================================
 @app.route('/graph')
 def show_graph():
-    conn = sqlite3.connect(DATABASE)
+    conn = sqlite3.connect(DATABASE) # データベースに接続。
     c = conn.cursor()
-    c.execute('SELECT date, day, bmi FROM bmi_records ORDER BY date DESC LIMIT 7')
+    c.execute('SELECT date, day, bmi FROM bmi_records ORDER BY date DESC LIMIT 7') # データベースの中の記録から最新の7件を取り出す。
     rows = c.fetchall()
     conn.close()
 
     if not rows:
         return render_template('graph.html', graph=None)
 
-    rows.reverse()  # 古い順に並べ替え
+    rows.reverse()  # 古い順に並べ替ええる。
 
-    # ✅ 月/日(曜日)形式でラベル作成
+    # 月/日(曜日)形式でラベル作成する。
     from datetime import datetime
     labels = [
         f"{datetime.strptime(r[0], '%Y-%m-%d').strftime('%-m/%-d')}({r[1]})"
@@ -129,18 +129,30 @@ def show_graph():
     bmis = [r[2] for r in rows]
 
     fig, ax = plt.subplots()
-    ax.plot(labels, bmis, marker='o', color='blue', label='BMI')
+    # ax.plot(labels, bmis, marker='o', color='blue', label='BMI')　#折れ線グラフを描画。
+    ax.bar(labels, bmis, color='skyblue', label='BMI') # 棒グラフを描画。
     ax.set_title('最新7件のBMI推移（月/日・曜日）')
     ax.set_xlabel('日付（曜日）')
     ax.set_ylabel('BMI')
     ax.legend()
 
     buf = io.BytesIO()
+
+    # matplotlibのFigureオブジェクト（fig）をPNG画像としてバッファに保存
     fig.savefig(buf, format='png')
+
+    # バッファの読み出し位置を先頭に戻す（書き込んだ後は読み込み位置が末尾になっているため）
     buf.seek(0)
+
+    # バッファから画像のバイナリデータを読み出して、Base64エンコードする
+    # → HTMLの <img> タグで直接表示できるように文字列に変換
     graph = base64.b64encode(buf.read()).decode('utf-8')
+
+    # バッファを閉じてメモリを解放（明示的にリソース解放）
     buf.close()
 
+    # テンプレート graph.html を表示し、変数 graph にBase64文字列を渡す
+    # HTML側では <img src="data:image/png;base64,{{ graph }}"> で画像を表示する
     return render_template('graph.html', graph=graph)
 
 # ==================================================
@@ -148,12 +160,12 @@ def show_graph():
 # ==================================================
 @app.route('/records')
 def view_records():
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    c.execute('SELECT id, date, day, weight, height, bmi FROM bmi_records ORDER BY date DESC')
-    records = c.fetchall()
+    conn = sqlite3.connect(DATABASE) # データベースに接続。
+    c = conn.cursor() # オブジェクト作成。
+    c.execute('SELECT id, date, day, weight, height, bmi FROM bmi_records ORDER BY date DESC') # データベースから項目別にデータを取得。
+    records = c.fetchall() # リストに格納(タプルリスト)。
     conn.close()
-    return render_template('records.html', records=records)
+    return render_template('records.html', records=records) # 変数 records をHTML側に渡すことで、HTMLで記録一覧をループ表示
 
 # ==================================================
 # 1件削除処理
