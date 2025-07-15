@@ -82,12 +82,14 @@ def exercise_settings():
     from collections import defaultdict, OrderedDict
     category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
     groups = defaultdict(list)
+
     for exercise in Exercise.query.order_by(Exercise.category, Exercise.order).all():
         groups[exercise.category].append(exercise)
     ordered_groups = OrderedDict()
+
     for category in category_order:
-        if category in groups:
-            ordered_groups[category] = groups[category]
+        ordered_groups[category] = groups[category]
+        
     return render_template(
         'exercises.html',
         grouped_exercises=ordered_groups

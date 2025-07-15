@@ -7,6 +7,10 @@
 <h2 style="display: flex; justify-content: space-between; align-items: center;">
     <span>筋トレ種目一覧</span>
 
+    <span>
+        <button id="edit-mode-toggle">編集</button>
+    </span>
+
 </h2>
 <style>
     table {
@@ -23,8 +27,7 @@
         background-color: #f2f2f2;
     }
 </style>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.13.0/jquery-ui.min.js"></script>
+
 <style>
     .order-buttons {
         display: inline-block;
@@ -52,15 +55,25 @@
             {{ category }}
         </div>
         <div class="exercise-list">
-            {% for exercise in exercises %}
-            <div style="display: flex; padding: 4px 0;" data-id="{{ exercise.id }}">
-                <div style="flex: 1;"></div>
-                <div style="flex: 1;">{{ exercise.name }}</div>
-                <div style="flex: 1;">{{ exercise.detail }}</div>
+            {% if exercises %}
+                {% for exercise in exercises %}
+                <div style="display: flex; padding: 4px 0;" data-id="{{ exercise.id }}">
+                    <div style="flex: 1;"></div>
+                    <div style="flex: 1;">{{ exercise.name }}</div>
+                    <div style="flex: 1;">{{ exercise.detail }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="display: flex; padding: 4px 0; font-style: italic; color: #666;">
+                    <div style="flex: 1;"></div>
+                    <div style="flex: 2;">（登録なし）</div>
+                </div>
+            {% endif %}
+            <div class="add-button" style="display: none; text-align: right;">
+                <button>＋追加</button>
             </div>
-            {% endfor %}
         </div>
-    </div>
+    </div>    
 {% endfor %}
 
 <p><a href="{{ url_for('index') }}">← トップメニューへ戻る</a></p>
