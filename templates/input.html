@@ -4,6 +4,38 @@
     <meta charset="UTF-8">
     <title>BMI入力フォーム</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        // 日付から曜日（日本語）を求めてセレクトボックスに反映する関数
+        function updateDayFromDate() {
+            const dateInput = document.querySelector('input[name="date"]');
+            const daySelect = document.querySelector('select[name="day"]');
+
+            if (!dateInput || !daySelect) return;
+
+            const dateValue = dateInput.value;
+            if (!dateValue) return;
+
+            const date = new Date(dateValue);
+            const days = ['日', '月', '火', '水', '木', '金', '土'];
+            const day = days[date.getDay()];
+
+            // セレクトボックスの選択肢を更新
+            for (let i = 0; i < daySelect.options.length; i++) {
+                if (daySelect.options[i].value === day) {
+                    daySelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        // ページ読み込み後にイベントを設定
+        window.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.querySelector('input[name="date"]');
+            if (dateInput) {
+                dateInput.addEventListener('change', updateDayFromDate);
+            }
+        });
+    </script>
 </head>
 <body>
     <h1>BMI記録 - 日付と曜日</h1>
