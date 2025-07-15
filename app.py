@@ -1,7 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, jsonify,request 
 import calendar
 import datetime
-
 # ==================================================
 # インスタンス生成
 # ==================================================
@@ -61,10 +60,49 @@ def show_diary(year, month, day):
     # 日付を 'YYYY-MM-DD' 形式にすることで、diary_entries のキーと一致させる
     date_str = f"{year:04d}-{month:02d}-{day:02d}"
 
-    # diary_entries から日記の内容を取得。存在しない場合はデフォルトメッセージ
-
+    items = [
+        {"name": "apple", "value": 10},
+        {"name": "banana", "value": 20},
+        {"name": "cherry", "value": 30}
+    ]
     # テンプレートにデータを渡してレンダリング
-    return render_template('diary_page.html', year=year, month=month, day=day, )
+    return render_template('static.html', year=year, month=month, day=day, items=items)
+
+@app.route('/api/calculate', methods=['POST'])
+def calculate():
+    """
+    POSTリクエストを受けて負荷を計算し、結果をJSONで返す
+    """
+    default_value = 1
+    data = request.json
+
+    # JSONデータから値を取得。存在しない場合は空文字列
+    weight_raw = data.get("weight", "")
+    reps_raw = data.get("reps", "")
+    sets_raw = data.get("sets", "")
+    item_value_raw = data.get("itemValue", "")
+
+    # すべての入力が空文字列の場合、負荷を0とする
+    if weight_raw == "" and reps_raw == "" and sets_raw == "":
+        return jsonify(result="現状約0.00kgの負荷です。"), 200
+
+    try:
+        # 入力が空文字列の場合はデフォルト値を使用、それ以外はfloatに変換
+        weight = float(weight_raw) if weight_raw else default_value
+        reps = float(reps_raw) if reps_raw else default_value
+        sets = float(sets_raw) if sets_raw else default_value
+
+        # 入力値が0以下の場合のエラーチェック
+        if weight <= 0 or reps <= 0 or sets <= 0:
+            return jsonify(result="正しい値を入力してください"), 400
+
+        load = weight * reps * sets
+        # item_value_raw が存在する場合のみ果物の情報を追加
+        fruit_info = f"（果物の値: {item_value_raw}）" if item_value_raw else ""
+        return jsonify(result=f"現状約{load:.2f}kgの負荷です。{fruit_info}"), 200
+    except ValueError:
+        # 数値変換エラーの場合
+        return jsonify(result="数値を入力してください"), 400
 # ==================================================
 # 実行
 # ==================================================

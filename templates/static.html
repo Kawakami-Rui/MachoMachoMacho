@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>カレンダー</title>
+</head>
+<body>
+    
+    <h1>{{month}}月{{day}}日</h1>
+    <input type="number" id="weight-input" placeholder="重さ">
+    <input type="number" id="reps-input" placeholder="回数">
+    <input type="number" id="sets-input" placeholder="セット数">
+    <select name="fruit" id="fruit-select">
+    {% for item in items %}
+      <option value="{{ item.value }}">{{ item.name }}</option>
+    {% endfor %}
+</select>
+
+    <p id="result"></p>
+    <script>
+    async function sendData() {
+    const weight = document.getElementById("weight-input").value;
+    const reps = document.getElementById("reps-input").value;
+    const sets = document.getElementById("sets-input").value;
+    const itemValue = document.getElementById("fruit-select").value;
+
+    const response = await fetch("/api/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weight, reps, sets, itemValue })
+    });
+    const data = await response.json();
+    document.getElementById("result").textContent = data.result;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("weight-input").addEventListener("input", sendData);
+    document.getElementById("reps-input").addEventListener("input", sendData);
+    document.getElementById("sets-input").addEventListener("input", sendData);
+    document.getElementById("fruit-select").addEventListener("change", sendData); // ← 追加
+});
+
+    </script>
+</body>
+</html>
