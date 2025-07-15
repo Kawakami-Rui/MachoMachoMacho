@@ -73,10 +73,16 @@ def exercise_settings():
         ordered_groups[category] = groups[category]
         
     return render_template(
-        'exercises.html',
+        'exercises_edit.html',
         grouped_exercises=ordered_groups
     )
 
+@app.route('/exercises/<int:exercise_id>', methods=['DELETE'])
+def delete_exercise(exercise_id):
+    exercise = Exercise.query.get_or_404(exercise_id)
+    db.session.delete(exercise)
+    db.session.commit()
+    return '', 204
 
 # ==================================================
 # 実行
