@@ -1,8 +1,8 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
+from db.models import db, Exercise
 
 # ==================================================
 # インスタンス生成
@@ -17,37 +17,19 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(24)
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
-db_path = os.path.join(base_dir, 'data.sqlite')
+db_path = os.path.join(base_dir, 'db', 'data.sqlite')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # DB初期化
-# ★db変数を使用してSQLAlchemyを操作できる
-db = SQLAlchemy(app)
+# ★SQLAlchemyをFlaskアプリにバインド
+db.init_app(app)
 # ★「flask_migrate」を使用できる様にする
 migrate = Migrate(app, db)
 
-#==================================================
-# モデル
-#==================================================
-class Exercise(db.Model):
-    # テーブル名
-    __tablename__ = 'exercises'
-    
-    # 種目ID
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    # 筋トレ種目名
-    name = db.Column(db.String(200), nullable=False)
-    # カテゴリ（部位）
-    category = db.Column(db.String(100), nullable=False)
-    # 詳細な筋肉部位
-    detail = db.Column(db.String(200), nullable=True)
-    # 順番
-    order = db.Column(db.Integer, nullable=True)
-
-    # 表示用
-    def __str__(self):
-        return f'種目ID：{self.id} 種目名：{self.name} カテゴリ：{self.category} 詳細：{self.detail}'
+# ==================================================
+# 初期データ挿入
+# ==================================================
 
 def insert_initial_data():
     if Exercise.query.count() == 0:
