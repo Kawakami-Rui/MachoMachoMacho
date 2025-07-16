@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
     const editButton = document.getElementById("edit-mode-toggle");
-
     if (!editButton) return;
 
     editButton.addEventListener("click", function () {
@@ -13,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // 操作列（ヘッダ）
         const operationHeader = document.getElementById("operation-header");
         if (operationHeader) {
-            operationHeader.style.display = isEditing ? "none" : "block";
+            operationHeader.style.display = isEditing ? "none" : "flex";
         }
 
         // 各行の操作セル表示切替
@@ -25,135 +24,94 @@ document.addEventListener("DOMContentLoaded", function () {
         document.querySelectorAll(".add-button").forEach(btn => {
             btn.style.display = isEditing ? "none" : "block";
         });
-
-        // 並び替えボタン ↑
-        document.querySelectorAll(".move-up").forEach(button => {
-            button.addEventListener("click", function () {
-                const row = this.closest("[data-id]");
-                const prev = row?.previousElementSibling;
-                if (prev && prev.matches("[data-id]")) {
-                    row.parentNode.insertBefore(row, prev);
-                }
-            });
-        });
-
-        // 並び替えボタン ↓
-        document.querySelectorAll(".move-down").forEach(button => {
-            button.addEventListener("click", function () {
-                const row = this.closest("[data-id]");
-                const next = row?.nextElementSibling;
-                if (next && next.matches("[data-id]")) {
-                    row.parentNode.insertBefore(next, row);
-                }
-            });
-        });
     });
 
-    // 各カテゴリごとの追加ボタン処理
+    // 追加ボタン処理
     document.querySelectorAll(".add-exercise-button").forEach(button => {
-        button.addEventListener("click", () => {
-            const category = button.dataset.category;
-            const section = button.closest(".main-group-section");
-            const exerciseList = section.querySelector(".exercise-list");
+    button.addEventListener("click", () => {
+        const category = button.dataset.category;
+        const section = button.closest(".main-group-section");
+        const exerciseList = section.querySelector(".exercise-list");
 
-            // 入力フォームが既に存在する場合は追加しない
-            if (exerciseList.querySelector(".input-row")) return;
+        if (exerciseList.querySelector(".input-row")) return;
 
-            const inputRow = document.createElement("div");
-            inputRow.classList.add("input-row");
-            inputRow.style.display = "flex";
-            inputRow.style.padding = "4px 0";
+        const inputRow = document.createElement("div");
+        inputRow.className = "input-row";
+        inputRow.innerHTML = `
+            <div class="col part">${category}</div>
+            <div class="col name"><input type="text" placeholder="種目名"></div>
+            <div class="col detail"><input type="text" placeholder="詳細な筋肉部位"></div>
+            <div class="col operation operation-cell">
+                <button class="save">保存</button>
+                <button class="cancel">取消</button>
+            </div>
+        `;
+        exerciseList.insertBefore(inputRow, button.closest(".add-button"));
 
-            inputRow.innerHTML = `
-                <div style="flex: 1;">${category}</div>
-                <div style="flex: 1;"><input type="text" placeholder="種目名"></div>
-                <div style="flex: 1;"><input type="text" placeholder="詳細な筋肉部位"></div>
-                <div class="operation-cell" style="flex: 0 0 100px; display: flex; gap: 4px;">
-                    <button class="save">保存</button>
-                    <button class="cancel">取消</button>
-                </div>
-            `;
+        // 取消ボタン
+        inputRow.querySelector(".cancel").addEventListener("click", () => {
+            inputRow.remove();
+        });
 
-            exerciseList.insertBefore(inputRow, button.closest(".add-button"));
+        // 保存ボタン
+        inputRow.querySelector(".save").addEventListener("click", async () => {
+            const name = inputRow.querySelector("input[placeholder='種目名']").value.trim();
+            const detail = inputRow.querySelector("input[placeholder='詳細な筋肉部位']").value.trim();
 
-            // 取消処理
-            inputRow.querySelector(".cancel").addEventListener("click", () => {
-                inputRow.remove();
+            inputRow.querySelector(".error-message")?.remove();
+
+            if (!name) {
+                const nameCol = inputRow.querySelector(".col.name");
+                const error = document.createElement("div");
+                error.className = "error-message";
+                error.textContent = "※ 種目名は必須です";
+                nameCol.appendChild(error);
+                return;
+            }
+
+            exerciseList.querySelector(".no-entry")?.remove();
+
+            const response = await fetch("/exercises", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, detail, category })
             });
 
-            // 保存処理
-            inputRow.querySelector(".save").addEventListener("click", async () => {
-                const name = inputRow.querySelector("input[placeholder='種目名']").value.trim();
-                const detail = inputRow.querySelector("input[placeholder='詳細な筋肉部位']").value.trim();
+            if (response.ok) {
+                const result = await response.json();
+                const newRow = document.createElement("div");
+                newRow.className = "exercise-row";
+                newRow.dataset.id = result.id;
 
-                // 既存のエラー表示があれば削除
-                const existingError = inputRow.querySelector(".error-message");
-                if (existingError) existingError.remove();
+                newRow.innerHTML = `
+                    <div class="col part"></div>
+                    <div class="col name">${result.name}</div>
+                    <div class="col detail">${result.detail}</div>
+                    <div class="col operation operation-cell">
+                    <button class="move-up">↑</button>
+                    <button class="move-down">↓</button>
+                    <button class="delete">削除</button>
+                    </div>
+                `;
 
-                // バリデーション：種目名は必須
-                if (!name) {
-                    const error = document.createElement("div");
-                    error.classList.add("error-message");
-                    error.style.color = "red";
-                    error.style.fontSize = "0.9em";
-                    error.style.marginTop = "4px";
-                    error.textContent = "※ 種目名は必須です";
-
-                    // 名前入力欄の直後に表示
-                    const nameInput = inputRow.querySelector("input[placeholder='種目名']");
-                    nameInput.parentNode.appendChild(error);
-
-                    return;
-                }
-
-                // 保存成功後に「登録なし」を非表示にする
-                const noEntry = exerciseList.querySelector(".no-entry");
-                if (noEntry) noEntry.remove();
-
-                // サーバーに保存リクエスト
-                const response = await fetch("/exercises", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ name, detail, category })
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    const newRow = document.createElement("div");
-                    newRow.style.display = "flex";
-                    newRow.style.padding = "4px 0";
-                    newRow.dataset.id = result.id;
-
-                    newRow.innerHTML = `
-                        <div style="flex: 1;"></div>
-                        <div style="flex: 1;">${result.name}</div>
-                        <div style="flex: 1;">${result.detail}</div>
-                        <div class="operation-cell" style="flex: 0 0 100px; display: flex; gap: 4px;">
-                            <button class="move-up">↑</button>
-                            <button class="move-down">↓</button>
-                            <button class="delete">削除</button>
-                        </div>
-                    `;
-                    exerciseList.insertBefore(newRow, inputRow);
-                    attachDeleteEvent(newRow.querySelector(".delete")); // ✅ 新しく追加された行にも削除イベントを付ける
-                    inputRow.remove();
-                } else {
-                    alert("保存に失敗しました");
-                }
-            });
+            exerciseList.insertBefore(newRow, inputRow);
+            attachDeleteEvent(newRow.querySelector(".delete"));
+            inputRow.remove();
+            } else {
+                alert("保存に失敗しました");
+            }
         });
     });
+});
 
-    // 初期読み込み時の削除ボタンにイベント登録
-    document.querySelectorAll(".delete").forEach(attachDeleteEvent);
+// 削除ボタンのイベント付与
+document.querySelectorAll(".delete").forEach(attachDeleteEvent);
 
-    // 関数定義：削除ボタンの動作
     function attachDeleteEvent(button) {
         button.addEventListener("click", async function () {
             const row = this.closest("[data-id]");
             const exerciseId = row.dataset.id;
-
-            
+            const exerciseList = row.parentNode;
 
             if (!confirm("本当に削除しますか？")) return;
 
@@ -163,26 +121,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (response.ok) {
                 row.remove();
+
+            // 残りがなければ「登録なし」を表示
+            if (!exerciseList.querySelector("[data-id]")) {
+                const noEntryRow = document.createElement("div");
+                noEntryRow.className = "no-entry";
+                noEntryRow.innerHTML = `
+                    <div class="col part"></div>
+                    <div class="col name">（登録なし）</div>
+                    <div class="col detail"></div>
+                    <div class="col operation"></div>
+                `;
+            exerciseList.insertBefore(noEntryRow, exerciseList.querySelector(".add-button"));
+            }
             } else {
                 alert("削除に失敗しました");
-            }
-
-            // 削除成功後に「登録なし」を表示する（行がなくなった場合）
-            const remaining = exerciseList.querySelectorAll("[data-id]");
-            if (remaining.length === 0) {
-                const noEntryRow = document.createElement("div");
-                noEntryRow.classList.add("no-entry");
-                noEntryRow.style.display = "flex";
-                noEntryRow.style.padding = "4px 0";
-                noEntryRow.style.fontStyle = "italic";
-                noEntryRow.style.color = "#666";
-
-                noEntryRow.innerHTML = `
-                    <div style="flex: 1;"></div>
-                    <div style="flex: 2;">（登録なし）</div>
-                    <div style="flex: 0 0 100px;"></div>
-                `;
-                exerciseList.insertBefore(noEntryRow, exerciseList.querySelector(".add-button"));
             }
         });
     }

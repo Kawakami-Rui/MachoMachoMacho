@@ -16,3 +16,73 @@ header, footer {
 main {
     padding: 2rem;
 }
+
+
+
+.page-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.exercise-header,
+.exercise-row,
+.no-entry,
+.input-row {
+  display: flex;
+  padding: 4px 0;
+  align-items: center;
+}
+
+.exercise-header {
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+}
+
+.group-title {
+  font-weight: bold;
+  padding: 6px 0;
+}
+
+.col {
+  flex: 1;
+}
+.col.operation {
+  flex: 0 0 100px;
+  display: flex;
+  gap: 4px;
+}
+.operation-cell button,
+.add-exercise-button,
+.save,
+.cancel {
+  font-size: 14px;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.add-button {
+  text-align: right;
+  margin-top: 4px;
+}
+.no-entry {
+  font-style: italic;
+  color: #666;
+}
+
+.input-row input {
+  width: 90%;
+  padding: 4px;
+  font-size: 14px;
+}
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 4px;
+}
