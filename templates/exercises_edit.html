@@ -3,7 +3,7 @@
 {% block title %}筋トレ種目一覧{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/exercises.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/exercises_edit.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -20,6 +20,7 @@
     <div style="flex: 1;">主な筋肉部位</div>
     <div style="flex: 1;">種目名</div>
     <div style="flex: 1;">詳細な筋肉部位</div>
+    <div id="operation-header" style="flex: 0 0 100px; display: none;"></div>
 </div>
 
 {% for category, exercises in grouped_exercises.items() %}
@@ -34,27 +35,23 @@
                     <div style="flex: 1;"></div>
                     <div style="flex: 1;">{{ exercise.name }}</div>
                     <div style="flex: 1;">{{ exercise.detail }}</div>
-
-                    <div class="order-buttons" style="flex: 0 0 auto; display: none;">
+                    <div class="operation-cell" style="flex: 0 0 100px; display: none; gap: 4px;">
                         <button class="move-up">↑</button>
                         <button class="move-down">↓</button>
+                        <button class="delete">削除</button>
                     </div>
-
-                    <div class="delete-button" style="flex: 0 0 auto; display: none; margin-left: 8px;">
-                        <button class="delete-exercise">削除</button>
-                    </div>
-
                 </div>
                 {% endfor %}
             {% else %}
-                <div style="display: flex; padding: 4px 0; font-style: italic; color: #666;">
+                <div class="no-entry" style="display: flex; padding: 4px 0; font-style: italic; color: #666;">
                     <div style="flex: 1;"></div>
                     <div style="flex: 2;">（登録なし）</div>
+                    <div id="operation-header" style="flex: 0 0 100px; display: none;"></div>
                 </div>
             {% endif %}
 
             <div class="add-button" style="display: none; text-align: right;">
-                <button>＋追加</button>
+                <button class="add-exercise-button" data-category="{{ category }}">＋追加</button>
             </div>
 
         </div>
@@ -63,5 +60,5 @@
 
 <p><a href="{{ url_for('index') }}">← トップメニューへ戻る</a></p>
 
-<script src="{{ url_for('static', filename='js/exercises.js') }}"></script>
+<script src="{{ url_for('static', filename='js/exercises_edit.js') }}"></script>
 {% endblock %}

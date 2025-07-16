@@ -59,9 +59,32 @@ def index():
     insert_initial_data()
     return render_template('index.html')
 
-@app.route('/exercises')
+@app.route('/exercises', methods=['GET', 'POST'])
 def exercise_settings():
     from collections import defaultdict, OrderedDict
+
+    if request.method == 'POST':
+        # 追加処理
+        data = request.get_json()
+        name = data.get('name')
+        category = data.get('category')
+        detail = data.get('detail')
+
+        max_order = db.session.query(db.func.max(Exercise.order)).filter_by(category=category).scalar() or 0
+        new_ex = Exercise(name=name, category=category, detail=detail, order=max_order + 1)
+
+        db.session.add(new_ex)
+        db.session.commit()
+
+        return jsonify({
+            'id': new_ex.id,
+            'name': new_ex.name,
+            'detail': new_ex.detail,
+            'category': new_ex.category
+        }), 201
+    
+
+    # リストを渡して表示処理
     category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
     groups = defaultdict(list)
 
