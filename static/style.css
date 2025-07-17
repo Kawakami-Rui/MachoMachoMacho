@@ -22,21 +22,32 @@ div  {
     color: rgb(5, 241, 166);
 }
 /***ランダム名言の設定***/
-@import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
 .famousquotes {
-  font-size: 15px;
-  font-family: 'Itim', cursive;}
+    font-size: 1.1rem;
+    font-family: 'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    color: #37474f;
+    text-align: center;
+    margin-bottom: 1rem;
+    background-color: #fff6e0;
+    border-left: 5px solid #eb2a2a;
+    padding: 1rem;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    white-space: pre-line;
+}
 
 
 /***土、日を色付きで表現***/
 th:nth-child(1),
-td:nth-child(n):nth-child(-n+1) {
+td:nth-child(1) {
   background-color: #ffe5e5;
   color: red;
 }
 
 th:nth-child(7),
-td:nth-child(n+7):nth-child(n+7) {
+td:nth-child(7) {
   background-color: #61b8f7;
   color: rgb(32, 113, 245);
 }
@@ -46,16 +57,19 @@ td.today { /***今日が土日の場合、todayがオレンジ色で表示され
   font-weight: bold;
 }
 
-.next{
-    color:#0d1fde;
-    display: block; /* ★ブロック化 */
-    float: left;    /* 続く内容を右側に */
-    text-decoration: none; /* 下線を消す */
+/******/
+a.next, a.back {
+    text-decoration: none;
+    font-weight: bold;
+    color: #fff;
+    background-color: #63cbf8;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    margin: 0 8px;
 }
 
-.back{
-    color:rgb(255, 0, 0);
-    display: block;
-    float: right;
-    text-decoration: none;
+/***ボタンにカーソルをおくと、色が変化する***/
+a.next:hover, a.back:hover {
+    background-color: #1e88e5;
 }
