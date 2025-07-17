@@ -32,22 +32,22 @@ migrate = Migrate(app, db)
 # ==================================================
 
 def insert_initial_data():
-    if Exercise.query.count() == 0:
+    if Exercise.query.count() == 0:  # データベースに登録されたExerciseがまだ存在しない場合のみ
         initial_exercises = [
-            Exercise(name='アームカール', category='腕', detail='上腕二頭筋', order=0),
-            Exercise(name='トライセプスエクステンション', category='腕', detail='上腕三頭筋', order=1),
-            Exercise(name='ベンチプレス', category='胸', detail='大胸筋', order=0),
-            Exercise(name='プッシュアップ', category='胸', detail='大胸筋', order=1),
-            Exercise(name='ショルダープレス', category='肩', detail='三角筋', order=0),
-            Exercise(name='サイドレイズ', category='肩', detail='三角筋側部', order=1),
-            Exercise(name='ラットプルダウン', category='背中', detail='広背筋', order=0),
-            Exercise(name='デッドリフト', category='背中', detail='脊柱起立筋', order=1),
-            Exercise(name='スクワット', category='脚', detail='大腿四頭筋', order=0),
-            Exercise(name='レッグカール', category='脚', detail='ハムストリングス', order=1),
-            Exercise(name='グルートブリッジ', category='その他', detail='大臀筋', order=0),
-            Exercise(name='ネックフレクション', category='その他', detail='頸部筋群', order=1)
+            Exercise(id=1, name='アームカール', category='腕', detail='上腕二頭筋', order=0),
+            Exercise(id=2, name='トライセプスエクステンション', category='腕', detail='上腕三頭筋', order=1),
+            Exercise(id=3, name='ベンチプレス', category='胸', detail='大胸筋', order=0),
+            Exercise(id=4, name='プッシュアップ', category='胸', detail='大胸筋', order=1),
+            Exercise(id=5, name='ショルダープレス', category='肩', detail='三角筋', order=0),
+            Exercise(id=6, name='サイドレイズ', category='肩', detail='三角筋側部', order=1),
+            Exercise(id=7, name='ラットプルダウン', category='背中', detail='広背筋', order=0),
+            Exercise(id=8, name='デッドリフト', category='背中', detail='脊柱起立筋', order=1),
+            Exercise(id=9, name='スクワット', category='脚', detail='大腿四頭筋', order=0),
+            Exercise(id=10, name='レッグカール', category='脚', detail='ハムストリングス', order=1),
+            Exercise(id=11, name='グルートブリッジ', category='その他', detail='大臀筋', order=0),
+            Exercise(id=12, name='ネックフレクション', category='その他', detail='頸部筋群', order=1)
         ]
-        db.session.bulk_save_objects(initial_exercises)
+        db.session.add_all(initial_exercises)
         db.session.commit()
 
 # ==================================================
@@ -64,12 +64,13 @@ def exercise_settings():
     from collections import defaultdict, OrderedDict
 
     if request.method == 'POST':
-        # 追加処理
+        # クライアントから送られたJSONを取得して新しいExerciseを追加
         data = request.get_json()
         name = data.get('name')
         category = data.get('category')
         detail = data.get('detail')
 
+        # 同じカテゴリ内での最大の並び順(order)を取得し、次の番号を設定
         max_order = db.session.query(db.func.max(Exercise.order)).filter_by(category=category).scalar() or 0
         new_ex = Exercise(name=name, category=category, detail=detail, order=max_order + 1)
 
@@ -84,7 +85,7 @@ def exercise_settings():
         }), 201
     
 
-    # リストを渡して表示処理
+    # 種目リストをカテゴリごとにグループ化して順序を整える
     category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
     groups = defaultdict(list)
 
@@ -102,10 +103,22 @@ def exercise_settings():
 
 @app.route('/exercises/<int:exercise_id>', methods=['DELETE'])
 def delete_exercise(exercise_id):
+
+    # 指定されたIDの種目を削除する
     exercise = Exercise.query.get_or_404(exercise_id)
     db.session.delete(exercise)
     db.session.commit()
     return '', 204
+
+@app.route("/exercises/reorder", methods=["POST"])
+def reorder_exercises():
+    data = request.get_json()
+    for item in data:
+        exercise = Exercise.query.get(item["id"])
+        if exercise:
+            exercise.order = item["order"]
+    db.session.commit()
+    return jsonify({"status": "ok"})
 
 # ==================================================
 # 実行

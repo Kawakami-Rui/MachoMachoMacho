@@ -7,11 +7,13 @@
 {% endblock %}
 
 {% block content %}
+<!-- ページのタイトルと編集モード切り替えボタン -->
 <h2 class="page-title">
     <span>筋トレ種目一覧</span>
     <span><button id="edit-mode-toggle">編集</button></span>
 </h2>
 
+<!-- 種目リストのヘッダー行 -->
 <div class="exercise-header">
     <div class="col part">主な筋肉部位</div>
     <div class="col name">種目名</div>
@@ -19,12 +21,15 @@
     <div class="col operation" id="operation-header" style="display: none;"></div>
 </div>
 
+<!-- カテゴリごとに種目をグループ化して表示 -->
 {% for category, exercises in grouped_exercises.items() %}
     <div class="main-group-section">
         <div class="group-title">{{ category }}</div>
         <div class="exercise-list">
+            <!-- 種目が存在する場合、リストとして表示 -->
             {% if exercises %}
-                {% for exercise in exercises %}
+                {% set sorted_exercises = exercises | sort(attribute='order') %}
+                {% for exercise in sorted_exercises %}
                     <div class="exercise-row" data-id="{{ exercise.id }}">
                         <div class="col part"></div>
                         <div class="col name">{{ exercise.name }}</div>
@@ -36,6 +41,7 @@
                         </div>
                     </div>
                 {% endfor %}
+            <!-- 種目が存在しない場合、登録なしと表示 -->
             {% else %}
                 <div class="no-entry">
                     <div class="col part"></div>
@@ -44,6 +50,7 @@
                     <div class="col operation"></div>
                 </div>
             {% endif %}
+            <!-- 種目を追加するボタン（編集モード時に表示） -->
             <div class="add-button" style="display: none;">
                 <button class="add-exercise-button" data-category="{{ category }}">＋追加</button>
             </div>
@@ -51,7 +58,9 @@
     </div>
 {% endfor %}
 
+<!-- トップメニューへの戻るリンク -->
 <p><a href="{{ url_for('index') }}">← トップメニューへ戻る</a></p>
 
+<!-- 編集用のJavaScriptファイルを読み込み -->
 <script src="{{ url_for('static', filename='js/exercises_edit.js') }}"></script>
 {% endblock %}
