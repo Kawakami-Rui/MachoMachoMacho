@@ -1,0 +1,69 @@
+
+<style>
+    .today {
+        background-color: #ffcc80;
+        font-weight: bold;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        width: 14.28%;
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
+
+<h2>{{ year }}年{{ month }}月のカレンダー</h2>
+
+<!-- 月移動ナビゲーション -->
+<div style="margin: 1rem 0;">
+    <a href="{{ url_for('calendar_page', year=prev_year, month=prev_month) }}">← 前月</a> |
+    <a href="{{ url_for('calendar_page', year=next_year, month=next_month) }}">次月 →</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>日</th>
+            <th>月</th>
+            <th>火</th>
+            <th>水</th>
+            <th>木</th>
+            <th>金</th>
+            <th>土</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for week in month_days %}
+        <tr>
+            {% for day in week %}
+                {% if day == 0 %}
+                    <td></td>
+                {% else %}
+                <!-- 今日のページ関連に飛ぶようにしたい部分 -->
+                    <td class="{% if day == now.day and month == now.month and year == now.year %}today{% endif %}">
+                        {# dayが今日の後の日付（未来の日付）かどうかをテンプレートエンジン側で判定 #}
+                    {% if day != 0 and (year < now.year or (year == now.year and month < now.month) or (year == now.year and month == now.month and day <= now.day)) %}
+                        <a href="{{ url_for('show_diary', year=year, month=month, day=day) }}">{{ day }}</a>
+                    {% else %}
+                        {{ day }}
+                    {% endif %}
+</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p>今日を <span style="background-color:#ffcc80;">オレンジ色</span> で表示している</p>
+</html>

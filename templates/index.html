@@ -4,5 +4,10 @@
 
 {% block content %}
 <h2>トップページへようこそ！</h2>
+<!--ここでcalendar.htmlを呼び出す-->
+{% include "calendar.html" %}
+
+<p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
+
 <p>Flaskでチーム開発</p>
 {% endblock %}
