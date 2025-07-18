@@ -58,7 +58,7 @@ def index():
 
 @app.route('/information')
 def information():
-    return render_template('templates2/information.html')  # ←サブフォルダ指定
+    return render_template('information.html') 
 
 # ==================================================
 # 実行
