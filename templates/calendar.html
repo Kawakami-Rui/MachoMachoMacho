@@ -3,33 +3,6 @@
 <head>
   <meta charset="UTF-8">
     <title>{{ year }}年{{ month }}月のカレンダー</title>
-    <style>
-    .today {
-        background-color: #ffcc80;
-        font-weight: bold;
-    }
-
-    table {
-        width: 100%;
-        margin: 0 auto;
-        border-collapse: collapse;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    th, td {
-        width: 14.28%;
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: center;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-    </style>
 </head>
     <body>
 
@@ -38,7 +11,7 @@
 
       <h2>{{ year }}年{{ month }}月のカレンダー</h2>
 
-      <div style="margin: 1rem 0;">
+      <div style="margin: 1rem 0;" >
           <a href="/?year={{ prev_year }}&month={{ prev_month }}" class="next">← 前月</a> |
           <a href="/?year={{ next_year }}&month={{ next_month }}" class="back">次月 →</a>
       </div>
