@@ -1,26 +1,4 @@
-
-<style>
-    .today {
-        background-color: #ffcc80;
-        font-weight: bold;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th, td {
-        width: 14.28%;
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: center;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
 
 <h2>{{ year }}年{{ month }}月のカレンダー</h2>
 
