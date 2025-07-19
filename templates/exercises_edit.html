@@ -3,6 +3,8 @@
 {% block title %}筋トレ種目一覧{% endblock %}
 
 {% block head %}
+{{ super() }}
+<!-- 編集用のcssファイルを読み込み -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/exercises_edit.css') }}">
 {% endblock %}
 
@@ -35,9 +37,9 @@
                         <div class="col name">{{ exercise.name }}</div>
                         <div class="col detail">{{ exercise.detail }}</div>
                         <div class="col operation operation-cell" style="display: none;">
-                            <button class="move-up">↑</button>
-                            <button class="move-down">↓</button>
-                            <button class="delete">削除</button>
+                            <button class="move-up button">↑</button>
+                            <button class="move-down button">↓</button>
+                            <button class="delete button">削除</button>
                         </div>
                     </div>
                 {% endfor %}
@@ -51,8 +53,8 @@
                 </div>
             {% endif %}
             <!-- 種目を追加するボタン（編集モード時に表示） -->
-            <div class="add-button" style="display: none;">
-                <button class="add-exercise-button" data-category="{{ category }}">＋追加</button>
+            <div class="add-button-wrapper" style="display: none;">
+                <button class="add button" data-category="{{ category }}">＋追加</button>
             </div>
         </div>
     </div>

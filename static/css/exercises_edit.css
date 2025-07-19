@@ -42,14 +42,28 @@ th {
     margin-bottom: 1.5rem;
 }
 
-/* 各行（ヘッダー、登録データ、登録なし、入力フォーム）を横並びにし、上寄せに揃える */
+/* 共通行のレイアウト（中央揃え） */
 .exercise-header,
 .exercise-row,
-.no-entry,
+.no-entry {
+    display: flex;
+    padding: 4px 0;
+    align-items: center;
+}
+
+/* 入力フォーム行のみ上揃え */
 .input-row {
     display: flex;
     padding: 4px 0;
     align-items: flex-start;
+}
+
+/* 入力欄を列の幅いっぱいに */
+.input-row input {
+    width: 95%;
+    box-sizing: border-box;
+    padding: 4px 8px;
+    font-size: 14px;
 }
 
 /* ヘッダーの下に線を入れて見やすくする */
@@ -75,11 +89,9 @@ th {
     display: flex;
     gap: 4px;
 }
-/* 各種ボタンの共通スタイル（見た目やカーソル） */
-.operation-cell button,
-.add-exercise-button,
-.save,
-.cancel {
+
+/* 各種ボタンの共通スタイル（見た目やカーソル）＊個別に設定しない時のデフォルト設定 */
+.button {
     font-size: 14px;
     padding: 4px 6px;
     border: 1px solid #ccc;
@@ -88,8 +100,37 @@ th {
     border-radius: 4px;
 }
 
+/* ボタンのホバー時の色変更 */
+.button:hover {
+    background-color: #f0f0f0;
+}
+
+
+/* 削除ボタンのみ変更 */
+.delete.button {
+    background-color: #ffcccc;
+    color: #d9534f;
+    border-color: #d9534f;
+}
+
+
+/* 保存ボタンのみ変更 */
+.save.button {
+    background-color: #dff0d8;
+    color: #3c763d;
+    border-color: #3c763d;
+}
+
+/* 取消ボタンのみ変更 */
+.cancel.button {
+    background-color: #ceedf7;
+    color: #6191a0;
+    border-color: #3d7b8e;
+}
+
+
 /* ＋追加ボタンの位置を右下に配置 */
-.add-button {
+.add-button-wrapper {
     text-align: right;
     margin-top: 4px;
 }
@@ -108,6 +149,6 @@ th {
 .error-message {
     display: none;
     color: red;
-    font-size: 0.9em;
-    margin-top: 4px;
+    font-size: 0.7em;
+    margin-top: 2px;
 }

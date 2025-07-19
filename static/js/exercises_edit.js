@@ -24,13 +24,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         // 操作列の表示・非表示切り替え
-        document.querySelectorAll(".add-button").forEach(btn => {
+        document.querySelectorAll(".add-button-wrapper").forEach(btn => {
             btn.style.display = isEditing ? "none" : "block";
         });
     });
 
     // 「＋追加」ボタンが押されたときの処理
-    document.querySelectorAll(".add-exercise-button").forEach(button => {
+    document.querySelectorAll(".add-button-wrapper button").forEach(button => {
     button.addEventListener("click", () => {
         const category = button.dataset.category;
         const section = button.closest(".main-group-section");
@@ -51,19 +51,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 <input type="text" placeholder="詳細な筋肉部位"></div>
             </div>
             <div class="col operation operation-cell">
-                <button class="save">保存</button>
-                <button class="cancel">取消</button>
+                <button class="save button">保存</button>
+                <button class="cancel button">取消</button>
             </div>
         `;
-        exerciseList.insertBefore(inputRow, button.closest(".add-button"));
+        exerciseList.insertBefore(inputRow, button.closest(".add-button-wrapper"));
 
         // 取消ボタンで入力フォームを削除
-        inputRow.querySelector(".cancel").addEventListener("click", () => {
+        inputRow.querySelector(".cancel.button").addEventListener("click", () => {
             inputRow.remove();
         });
 
         // 保存ボタンがクリックされたときの処理
-        inputRow.querySelector(".save").addEventListener("click", async () => {
+        inputRow.querySelector(".save.button").addEventListener("click", async () => {
             const name = inputRow.querySelector("input[placeholder='種目名']").value.trim();
             const detail = inputRow.querySelector("input[placeholder='詳細な筋肉部位']").value.trim();
 
@@ -105,9 +105,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="col name">${result.name}</div>
                     <div class="col detail">${result.detail}</div>
                     <div class="col operation operation-cell">
-                        <button class="move-up">↑</button>
-                        <button class="move-down">↓</button>
-                        <button class="delete">削除</button>
+                        <button class="move-up button">↑</button>
+                        <button class="move-down button">↓</button>
+                        <button class="delete button">削除</button>
                     </div>
                 `;
 
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 exerciseList.insertBefore(newRow, inputRow);
                 // 全ての種目行にイベントを再登録
                 document.querySelectorAll(".exercise-row").forEach(row => {
-                    const deleteButton = row.querySelector(".delete");
+                    const deleteButton = row.querySelector(".delete button");
                     if (deleteButton) attachDeleteEvent(deleteButton);
                     attachMoveEvents(row);
                 });
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="col detail"></div>
                     <div class="col operation"></div>
                 `;
-                exerciseList.insertBefore(noEntryRow, exerciseList.querySelector(".add-button"));
+                exerciseList.insertBefore(noEntryRow, exerciseList.querySelector(".add-button-wrapper"));
             }
             } else {
                 alert("削除に失敗しました");
@@ -210,10 +210,10 @@ function sendNewOrder(listElement) {
     });
 }
 
-// ページ読み込み時にすべての行にイベントを追加
-document.querySelectorAll(".exercise-row").forEach(row => {
-    const deleteButton = row.querySelector(".delete");
-    if (deleteButton) attachDeleteEvent(deleteButton);
-    attachMoveEvents(row);
-});
+    // ページ読み込み時にすべての行にイベントを追加
+    document.querySelectorAll(".exercise-row").forEach(row => {
+        const deleteButton = row.querySelector(".delete");
+        if (deleteButton) attachDeleteEvent(deleteButton);
+        attachMoveEvents(row);
+    });
 });
