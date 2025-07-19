@@ -42,10 +42,16 @@ th {
     margin-bottom: 1.5rem;
 }
 
-/* 各行（ヘッダー、登録データ、登録なし、入力フォーム）を横並びにし、上寄せに揃える */
+/* 共通行のレイアウト（中央揃え） */
 .exercise-header,
 .exercise-row,
-.no-entry,
+.no-entry {
+    display: flex;
+    padding: 4px 0;
+    align-items: center;
+}
+
+/* 入力フォーム行のみ上揃え */
 .input-row {
     display: flex;
     padding: 4px 0;
@@ -75,9 +81,10 @@ th {
     display: flex;
     gap: 4px;
 }
+
 /* 各種ボタンの共通スタイル（見た目やカーソル） */
 .operation-cell button,
-.add-exercise-button,
+.add-button-wrapper button,
 .save,
 .cancel {
     font-size: 14px;
@@ -88,8 +95,11 @@ th {
     border-radius: 4px;
 }
 
+
+
+
 /* ＋追加ボタンの位置を右下に配置 */
-.add-button {
+.add-button-wrapper {
     text-align: right;
     margin-top: 4px;
 }
