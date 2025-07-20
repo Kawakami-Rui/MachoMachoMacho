@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, flash
+from forms import PersonalInfoForm
+from models import db, PersonalInfo, Exercise
 import calendar
 import datetime
 
@@ -6,6 +8,13 @@ import datetime
 # インスタンス生成
 # ==================================================
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///yourdatabase.db' # SQLiteデータベースの場所指定
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # 変更監視をオフ（パフォーマンス向上）
+app.secret_key = 'your_secret_key'  # CSRF対策に必要
+db.init_app(app)
+
+with app.app_context():
+    db.create_all()
 
 # ==================================================
 # ルーティング
@@ -56,9 +65,24 @@ def index():
         next_month=next_month    # 次月の月
     )
 
-@app.route('/information')
-def information():
-    return render_template('information.html') 
+@app.route('/form', methods=["GET", "POST"])
+def form():
+    form = PersonalInfoForm()
+
+    if form.validate_on_submit():
+        new_person = PersonalInfo(
+            username=form.username.data,
+            email=form.email.data,
+            password=form.password.data,
+            height=form.height.data,
+            weight=form.weight.data
+        )
+        db.session.add(new_person) # DBに追加予約
+        db.session.commit()        # DBに確定保存
+        flash("保存完了！", "success")
+        return render_template("form.html", form=form)  # 送信後もフォームを再表示
+
+    return render_template("form.html", form=form)
 
 # ==================================================
 # 実行

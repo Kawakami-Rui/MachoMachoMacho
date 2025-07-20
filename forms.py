@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
-
+           ###バリデータクラス定義###
 class PersonalInfoForm(FlaskForm):
     username = StringField('ユーザー名', validators=[DataRequired(), Length(min=2, max=50)])
     email = StringField('メールアドレス', validators=[DataRequired(), Email()])

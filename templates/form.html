@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>フォーム</title>
+</head>
+<body>
+  <h1>個人情報入力フォーム</h1>
+  <form action="{{ url_for('form') }}" method="post">
+    {{ form.hidden_tag() }}
+
+    <p>{{ form.username.label }}<br>{{ form.username() }}</p>
+    <p>{{ form.email.label }}<br>{{ form.email() }}</p>
+    <p>{{ form.password.label }}<br>{{ form.password() }}</p>
+    <p>{{ form.confirm_password.label }}<br>{{ form.confirm_password() }}</p>
+    <p>{{ form.height.label }}<br>{{ form.height() }}</p>
+    <p>{{ form.weight.label }}<br>{{ form.weight() }}</p>
+    <p>{{ form.submit() }}</p>
+
+    {% for field, errors in form.errors.items() %}
+      {% for error in errors %}
+        <p style="color:red;">{{ error }}</p>
+      {% endfor %}
+    {% endfor %}
+  </form>
+</body>
+</html>
