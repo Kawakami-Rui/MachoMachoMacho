@@ -1,0 +1,14 @@
+{% extends 'base.html' %} <!--ラベルを継承-->
+
+{% block title %}ユーザー情報{% endblock %}
+
+{% block content %}
+<!--データベースから情報取得、表示する-->
+<h2>{{ user.username }} さんの情報</h2>
+<ul>
+  <li>メールアドレス: {{ user.email }}</li>
+  <li>身長: {{ user.height }} cm</li>
+  <li>体重: {{ user.weight }} kg</li>
+</ul>
+<a href="{{ url_for('index') }}">戻る</a> <!---戻るボタンでスタートページに。今はindexカレンダーへ飛ぶ-->
+{% endblock %}

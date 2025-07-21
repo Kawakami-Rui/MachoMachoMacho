@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, flash
 from forms import PersonalInfoForm
+from flask import redirect, url_for
 from models import db, PersonalInfo  # ← Exercise 使わないならこれはこれでOK
 #from models import db, PersonalInfo, Exercise#
 import calendar
@@ -14,8 +15,11 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # 変更監視をオフ（�
 app.secret_key = 'your_secret_key'  # CSRF対策に必要
 db.init_app(app)
 
+#######forms.pyで定義したデータベースを作成！！　#######
 with app.app_context():
     db.create_all()
+##################################################
+
 
 # ==================================================
 # ルーティング
@@ -66,9 +70,10 @@ def index():
         next_month=next_month    # 次月の月
     )
 
+####個人情報変更ページ###
 @app.route('/form', methods=["GET", "POST"])
 def form():
-    form = PersonalInfoForm()
+    form = PersonalInfoForm() ### forms.pyで定義したバリデータ"PersonalInfoForm"のインスタンスを作成 ###
 
     if form.validate_on_submit():
         new_person = PersonalInfo(
@@ -78,12 +83,17 @@ def form():
             height=form.height.data,
             weight=form.weight.data
         )
-        db.session.add(new_person) # DBに追加予約
+        db.session.add(new_person) # 上記のバリデータをクリアした場合、DBに追加予約(仮登録)
         db.session.commit()        # DBに確定保存
         flash("保存完了！", "success")
-        return render_template("form.html", form=form)  # 送信後もフォームを再表示
-
+        return redirect(url_for("user_info", user_id=new_person.id))
     return render_template("form.html", form=form)
+
+###個人情報閲覧ページ###
+@app.route('/user/<int:user_id>')
+def user_info(user_id):
+    user = PersonalInfo.query.get_or_404(user_id)  # IDで検索。なければ404表示。
+    return render_template("user_info.html", user=user)
 
 
 # ==================================================

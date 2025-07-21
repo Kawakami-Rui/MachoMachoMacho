@@ -4,6 +4,7 @@ db = SQLAlchemy()
 
 class PersonalInfo(db.Model):
     __tablename__ = 'personal_info'  # テーブル名
+    ### db.Colummでpersonal_infoテーブルの設計図###
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), nullable=False)
