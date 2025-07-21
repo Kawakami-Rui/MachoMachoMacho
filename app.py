@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash
 from forms import PersonalInfoForm
-from models import db, PersonalInfo, Exercise
+from models import db, PersonalInfo  # ← Exercise 使わないならこれはこれでOK
+#from models import db, PersonalInfo, Exercise#
 import calendar
 import datetime
 
@@ -83,6 +84,7 @@ def form():
         return render_template("form.html", form=form)  # 送信後もフォームを再表示
 
     return render_template("form.html", form=form)
+
 
 # ==================================================
 # 実行

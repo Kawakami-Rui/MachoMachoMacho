@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>フォーム</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}個人情報入力フォーム{% endblock %}
+
+{% block content %}
   <h1>個人情報入力フォーム</h1>
   <form action="{{ url_for('form') }}" method="post">
     {{ form.hidden_tag() }}
@@ -23,5 +21,4 @@
       {% endfor %}
     {% endfor %}
   </form>
-</body>
-</html>
+{% endblock %}
