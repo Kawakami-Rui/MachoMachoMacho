@@ -185,3 +185,5 @@ def delete_record(record_id):
 if __name__ == '__main__':
     init_db()
     app.run(port=5001, debug=True)
+
+#動作確認のみ。
