@@ -1,0 +1,182 @@
+/* トレーニングリストのサンプルcss例
+* このCSSは、トレーニング記録の見た目を整えるためのものです。
+*  以下の要素を含みます：
+* - 記録フォームのスタイル
+* - 種目入力行のスタイル
+* - 各種目のセレクトボックスと入力欄のスタイル
+* - 「＋ 種目追加」ボタンと「記録保存」ボタン
+* - 記録一覧のスタイル
+* - 各記録の見た目
+* - カテゴリごとの色分け
+* - 記録がない場合のメッセージ
+* - 記録削除ボタンのスタイル
+* 
+*  変更は現在追加されてるhtmlとjsのclass名を参考にしてね😑
+*/
+
+/* 記録フォーム全体の見た目（<form class="training-form">） */
+.training-form {
+    margin-top: 30px;                        /* 上の余白 */
+    background-color: #f8f9fa;             /* 背景色（薄いグレー） */
+    padding: 20px;                           /* 内側の余白 */
+    border-radius: 10px;                     /* 角丸 */
+    max-width: 700px;                        /* 最大幅 */
+    margin-left: auto;
+    margin-right: auto;                      /* 中央寄せ */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* 軽い影 */
+}
+
+/* 1行分の種目入力（.log-row = select + input3つ の行） */
+.log-row {
+    margin-bottom: 12px;                     /* 下の余白 */
+    display: flex;                           /* 横並び */
+    gap: 12px;                               /* 各要素の隙間 */
+    align-items: center;                     /* 高さを中央にそろえる */
+    flex-wrap: wrap;                         /* スマホ等で折り返し可能に */
+}
+
+/* 種目セレクトボックス（<select class="exercise-select">） */
+.exercise-select {
+    width: 220px;
+    padding: 6px;
+    border: 1px solid #ccc;                  /* 枠線（薄いグレー） */
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+/* 数値入力欄（sets, reps, weight）共通の設定 */
+.input-sets,
+.input-reps,
+.input-weight {
+    width: 90px;                             /* 幅は揃える */
+    padding: 6px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+/* 「＋ 種目追加」ボタン（<button class="add-row-btn">） */
+.add-row-btn {
+    background-color: #007bff;               /* ブルー系 */
+    color: white;
+    border: none;
+    margin-top: 15px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.add-row-btn:hover {
+    background-color: #0056b3;               /* ホバー時：やや濃く */
+}
+
+/* 「記録保存」ボタン（<button class="submit-btn">） */
+.submit-btn {
+    background-color: #28a745;               /* グリーン系 */
+    color: white;
+    border: none;
+    margin-top: 15px;
+    margin-left: 10px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.submit-btn:hover {
+    background-color: #1e7e34;               /* ホバー時：濃い緑 */
+}
+
+/* 記録一覧のスタイル（<ul class="training-log-list">） */
+.training-log-list {
+    list-style: none;                        /* リストのドットを消す */
+    margin: 40px auto 0 auto;               /* 上に余白＋中央寄せ */
+    max-width: 700px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    padding: 24px 24px 12px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;                              /* 記録ごとの余白 */
+}
+
+/*　各記録の見た目（.training-log-item） */
+.training-log-item {
+    padding: 14px 18px;
+    background-color: #f4f7fa;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    font-size: 15px;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-left: 4px solid ;        /* 左側のボーダーの色 */
+}
+/*　カテゴリの見た目（.training-log-item.???） */
+.training-log-item.胸 {
+    border-left-color: #ff6b6b;             /* 胸：レッド系 */
+}
+.training-log-item.肩 {
+    border-left-color: #feca57;             /* 肩：イエロー系 */
+}
+.training-log-item.腕 {
+    border-left-color: #1dd1a1;             /* 腕：グリーン系 */
+}
+.training-log-item.背中 {      
+    border-left-color: #54a0ff;             /* 背中：ブルー系 */
+}
+.training-log-item.腹筋 {
+    border-left-color: #a29bfe;             /* 腹筋：パープル系 */
+}
+.training-log-item.脚 {
+    border-left-color: #ff9f43;             /* 脚：オレンジ系 */
+}
+.training-log-item.その他 {
+    border-left-color: #dfe6e9;             /* その他：グレー系 */
+}   
+
+/* 記録のテキスト部分（.log-item-text） */
+.training-log-empty {
+    color: #888;
+    font-size: 16px;
+    text-align: center;
+    padding: 30px 0 24px 0;
+    background: none;
+    border-radius: 8px;
+    font-style: italic;
+    letter-spacing: 0.5px;
+}
+
+.delete-log-btn {
+    background-color: #dc3545;               /* レッド系 */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.delete-log-btn:hover {
+    background-color: #c82333;               /* ホバー時：濃い赤 */
+}
+
+
+.log-item-form {
+    width: 100%;
+}
+
+.log-item-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.log-item-text {
+    flex: 1;
+    padding-right: 10px;
+}
+
+.log-item-delete {
+    flex-shrink: 0;
+}

@@ -1,10 +1,11 @@
 import os
-from flask import Flask, render_template, jsonify, request, redirect, url_for
 import datetime
 import calendar
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_migrate import Migrate
+from collections import defaultdict, OrderedDict
 
-from models import db, Exercise
+from models import db, Exercise, WorkoutLog
 
 # Flaskアプリケーションの初期化
 app = Flask(__name__)
@@ -50,6 +51,20 @@ def insert_initial_data():
         ]
         db.session.add_all(initial_exercises)
         db.session.commit()
+
+def get_grouped_exercises():
+    """種目をカテゴリごとにグループ化し、並び順でソートして返す"""
+    all_exercises = Exercise.query.filter_by(is_deleted=False).order_by(Exercise.category, Exercise.order).all() #Exerciseから全ての種目を取得し、カテゴリと表示順でソート
+    category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他'] # カテゴリの表示順を固定
+    groups = defaultdict(list)
+    for ex in all_exercises:
+        groups[ex.category].append(ex)
+
+    ordered_groups = OrderedDict()
+    for cat in category_order:
+        # 空でも表示するように必ずセット
+        ordered_groups[cat] = groups.get(cat, [])  # 存在しなければ空リスト
+    return ordered_groups
 
 # ========================================
 # トップページ "/" → 今日の年月へリダイレクト
@@ -132,16 +147,7 @@ def exercise_settings():
         }), 201
     
 
-    # 種目リストをカテゴリごとにグループ化して順序を整える
-    category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
-    groups = defaultdict(list)
-
-    for exercise in Exercise.query.order_by(Exercise.category, Exercise.order).all():
-        groups[exercise.category].append(exercise)
-    ordered_groups = OrderedDict()
-
-    for category in category_order:
-        ordered_groups[category] = groups[category]
+    ordered_groups = get_grouped_exercises()
         
     return render_template(
         'exercises_edit.html',
@@ -150,12 +156,19 @@ def exercise_settings():
 
 @app.route('/exercises/<int:exercise_id>', methods=['DELETE'])
 def delete_exercise(exercise_id):
-
-    # 指定されたIDの種目を削除する
     exercise = Exercise.query.get_or_404(exercise_id)
-    db.session.delete(exercise)
-    db.session.commit()
-    return '', 204
+
+    # 該当の種目がログで使われているかを確認
+    if WorkoutLog.query.filter_by(exercise_id=exercise.id).first():
+        # 使用されていれば論理削除
+        exercise.mark_as_deleted()
+        db.session.commit()
+        return jsonify({'status': 'logical delete'}), 200
+    else:
+        # 使用されていなければ物理削除
+        db.session.delete(exercise)
+        db.session.commit()
+        return jsonify({'status': 'deleted'}), 200
 
 @app.route("/exercises/reorder", methods=["POST"])
 def reorder_exercises():
@@ -168,17 +181,62 @@ def reorder_exercises():
     return jsonify({"status": "ok"})
 
 
-
-
 # ========================================
 # 日付ごとの記録ページ
 # ========================================
-@app.route('/workout-log/<int:year>/<int:month>/<int:day>')
-
+@app.route('/workout-log/<int:year>/<int:month>/<int:day>', methods=['GET', 'POST'])
 def show_diary(year, month, day):
-    # ここに日記を表示する処理を記述
+    try:
+        date = datetime.date(year, month, day)
+    except ValueError:
+        return "Invalid date", 400
 
-    return render_template('training_log.html', year=year, month=month, day=day)
+    if request.method == 'POST':
+        date = datetime.date(year, month, day)
+
+        exercise_ids = request.form.getlist('exercise_id')
+        sets_list = request.form.getlist('sets')
+        reps_list = request.form.getlist('reps')
+        weight_list = request.form.getlist('weight')
+
+        for i in range(len(exercise_ids)):
+            if exercise_ids[i] and sets_list[i] and reps_list[i] and weight_list[i]:
+                log = WorkoutLog(
+                    date=date,
+                    exercise_id=int(exercise_ids[i]),
+                    sets=int(sets_list[i]),
+                    reps=int(reps_list[i]),
+                    weight=float(weight_list[i])
+                )
+                db.session.add(log)
+
+        db.session.commit()
+        return redirect(url_for('show_diary', year=year, month=month, day=day))
+
+    # 表示時：登録済みのログと登録用の種目一覧
+    logs = WorkoutLog.query.filter_by(date=date).all()
+
+    ordered_groups = get_grouped_exercises()
+
+    return render_template('training_log.html',
+                           year=year, month=month, day=day,
+                           logs=logs,
+                           grouped_exercises=ordered_groups)
+
+# ========================================
+# WorkoutLog削除ルート
+# ========================================
+@app.route('/workout-log/<int:year>/<int:month>/<int:day>/delete', methods=['POST'])
+def delete_log_for_date(year, month, day):
+    log_id = request.form.get("log_id")
+    if log_id:
+        log = WorkoutLog.query.get(log_id)
+        if log:
+            db.session.delete(log)
+            db.session.commit()
+    # リダイレクト元ページへ戻る
+    return redirect(url_for('show_diary', year=year, month=month, day=day))
+
 
 # ========================================
 # 実行

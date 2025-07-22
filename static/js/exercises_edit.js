@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
             } else {
                 alert("削除に失敗しました");
             }
-        }, { once: true });
+        });
     }
 
 // 並び替えボタンの処理を設定
