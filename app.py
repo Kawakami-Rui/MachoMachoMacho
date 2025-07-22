@@ -85,7 +85,7 @@ def form():
         )
         db.session.add(new_person) # 上記のバリデータをクリアした場合、DBに追加予約(仮登録)
         db.session.commit()        # DBに確定保存
-        flash("保存完了！", "success")
+        ##flash("保存完了！", "success")## #flashで文字を一瞬表示させるコードだが、少し難しいため一時停止#
         return redirect(url_for("user_info", user_id=new_person.id))
     return render_template("form.html", form=form)
 

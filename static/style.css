@@ -104,3 +104,50 @@ div {
 a.next:hover, a.back:hover {
     background-color: #1184e8;
 }
+
+
+form {
+    color: #333;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 2rem auto;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ラベルや入力欄の整列 */
+form p {
+    margin-bottom: 1.2rem;
+}
+
+/* 入力欄のスタイル */
+form input[type="text"],
+form input[type="password"],
+form input[type="email"] {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* 送信ボタンのスタイル */
+form input[type="submit"], 
+form button {
+    background-color: #33bbf5;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+form input[type="submit"]:hover,
+form button:hover {
+    background-color: #1aa9e2;
+}
