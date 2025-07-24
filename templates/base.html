@@ -2,7 +2,9 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}MachoMachoMacho{% endblock %}</title>
+    <title>{% block title %}
+        MachoMachoMacho{% endblock %}
+    </title>
     {% block head %}
     <!-- 編集用のCSSファイルを読み込み -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">

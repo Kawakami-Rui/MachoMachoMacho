@@ -3,7 +3,10 @@
 {% block title %}ホーム{% endblock %}
 
 {% block content %}
-<h2>トップページへようこそ！</h2>
+
+<!-- 名言表示用 -->
+<div id="output" class="famousquotes"></div>
+
 <!--ここでcalendar.htmlを呼び出す-->
 {% include "calendar.html" %}
 
@@ -32,4 +35,8 @@
 <p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
 
 <p>Flaskでチーム開発</p>
+
+<!-- 編集用のJavaScriptファイルを読み込み -->
+<script src="{{ url_for('static', filename='js/muscle_quotes.js') }}"></script>
+
 {% endblock %}

@@ -6,7 +6,9 @@ from collections import defaultdict, OrderedDict
 from sqlalchemy import func
 from datetime import datetime, timedelta, date
 
-from models import db, Exercise, WorkoutLog
+from forms import PersonalInfoForm, LoginForm
+from flask import session, flash
+from models import db, Exercise, WorkoutLog , PersonalInfo
 
 # Flaskアプリケーションの初期化
 app = Flask(__name__)
@@ -34,20 +36,24 @@ migrate = Migrate(app, db)
 # 初期データ挿入
 # ==================================================
 def insert_initial_data():
-    if Exercise.query.count() == 0:  # データベースに登録されたExerciseがまだ存在しない場合のみ
+    if Exercise.query.count() == 0:
+        current_user_id = session.get("user_id")
+        if not current_user_id:
+            return  # ログインしていない場合は登録をスキップ
+
         initial_exercises = [
-            Exercise(id=1, name='アームカール', category='腕', detail='上腕二頭筋', order=0),
-            Exercise(id=2, name='トライセプスエクステンション', category='腕', detail='上腕三頭筋', order=1),
-            Exercise(id=3, name='ベンチプレス', category='胸', detail='大胸筋', order=0),
-            Exercise(id=4, name='プッシュアップ', category='胸', detail='大胸筋', order=1),
-            Exercise(id=5, name='ショルダープレス', category='肩', detail='三角筋', order=0),
-            Exercise(id=6, name='サイドレイズ', category='肩', detail='三角筋側部', order=1),
-            Exercise(id=7, name='ラットプルダウン', category='背中', detail='広背筋', order=0),
-            Exercise(id=8, name='デッドリフト', category='背中', detail='脊柱起立筋', order=1),
-            Exercise(id=9, name='スクワット', category='脚', detail='大腿四頭筋', order=0),
-            Exercise(id=10, name='レッグカール', category='脚', detail='ハムストリングス', order=1),
-            Exercise(id=11, name='グルートブリッジ', category='その他', detail='大臀筋', order=0),
-            Exercise(id=12, name='ネックフレクション', category='その他', detail='頸部筋群', order=1)
+            Exercise(name='アームカール', category='腕', detail='上腕二頭筋', order=0, user_id=current_user_id),
+            Exercise(name='トライセプスエクステンション', category='腕', detail='上腕三頭筋', order=1, user_id=current_user_id),
+            Exercise(name='ベンチプレス', category='胸', detail='大胸筋', order=0, user_id=current_user_id),
+            Exercise(name='プッシュアップ', category='胸', detail='大胸筋', order=1, user_id=current_user_id),
+            Exercise(name='ショルダープレス', category='肩', detail='三角筋', order=0, user_id=current_user_id),
+            Exercise(name='サイドレイズ', category='肩', detail='三角筋側部', order=1, user_id=current_user_id),
+            Exercise(name='ラットプルダウン', category='背中', detail='広背筋', order=0, user_id=current_user_id),
+            Exercise(name='デッドリフト', category='背中', detail='脊柱起立筋', order=1, user_id=current_user_id),
+            Exercise(name='スクワット', category='脚', detail='大腿四頭筋', order=0, user_id=current_user_id),
+            Exercise(name='レッグカール', category='脚', detail='ハムストリングス', order=1, user_id=current_user_id),
+            Exercise(name='グルートブリッジ', category='その他', detail='大臀筋', order=0, user_id=current_user_id),
+            Exercise(name='ネックフレクション', category='その他', detail='頸部筋群', order=1, user_id=current_user_id)
         ]
         db.session.add_all(initial_exercises)
         db.session.commit()
@@ -57,13 +63,17 @@ def insert_initial_data():
 # ================================================
 def insert_sample_data():
     if WorkoutLog.query.count() == 0:   # 開発環境のみ使用
+        current_user_id = session.get("user_id")
+        if not current_user_id:
+            return  # ログインしていない場合は登録をスキップ
+
         sample_logs = [
-            WorkoutLog(date=date(2025, 7, 20), exercise_id=1, sets=3, reps=10, weight=40),
-            WorkoutLog(date=date(2025, 7, 20), exercise_id=3, sets=3, reps=8, weight=60),
-            WorkoutLog(date=date(2025, 7, 21), exercise_id=5, sets=4, reps=12, weight=20),
-            WorkoutLog(date=date(2025, 7, 22), exercise_id=2, sets=3, reps=15, weight=15),
-            WorkoutLog(date=date(2025, 7, 22), exercise_id=6, sets=2, reps=20, weight=10),
-            WorkoutLog(date=date(2025, 7, 23), exercise_id=9, sets=5, reps=5, weight=80),
+            WorkoutLog(date=date(2025, 7, 20), exercise_id=1, sets=3, reps=10, weight=40, user_id=current_user_id),
+            WorkoutLog(date=date(2025, 7, 20), exercise_id=3, sets=3, reps=8, weight=60, user_id=current_user_id),
+            WorkoutLog(date=date(2025, 7, 21), exercise_id=5, sets=4, reps=12, weight=20, user_id=current_user_id),
+            WorkoutLog(date=date(2025, 7, 22), exercise_id=2, sets=3, reps=15, weight=15, user_id=current_user_id),
+            WorkoutLog(date=date(2025, 7, 22), exercise_id=6, sets=2, reps=20, weight=10, user_id=current_user_id),
+            WorkoutLog(date=date(2025, 7, 23), exercise_id=9, sets=5, reps=5, weight=80, user_id=current_user_id),
         ]
         db.session.add_all(sample_logs)
         db.session.commit()
@@ -145,11 +155,13 @@ def get_chart_data(start_date, end_date):
 # トップページ "/" → 今日の年月へリダイレクト
 # ========================================
 @app.route('/')
-
 def index():
+    if 'user_id' not in session:
+        return redirect(url_for('start'))  # 未ログインなら start.html を表示
+
     insert_initial_data()
     insert_sample_data()
-    return redirect_to_today()  # /2025/7 のようなURLへリダイレクト
+    return redirect_to_today()  # ログイン済みならカレンダー表示へ
 
 def redirect_to_today():
     """現在の日付を取得して、/年/月 にリダイレクト"""
@@ -194,6 +206,9 @@ def top_page(year, month):
 
     return render_template(
         'index.html',
+        labels=labels,
+        datasets=datasets,  # ← グラフデータを渡す
+        reverse_legend=True,
         year=year,
         month=month,
         month_days=month_days,
@@ -201,10 +216,7 @@ def top_page(year, month):
         prev_year=prev_year,
         prev_month=prev_month,
         next_year=next_year,
-        next_month=next_month,
-        labels=labels,
-        datasets=datasets,  # ← グラフデータを渡す
-        reverse_legend=True
+        next_month=next_month
     )
 
 
@@ -223,7 +235,7 @@ def exercise_settings():
 
         # 同じカテゴリ内での最大の並び順(order)を取得し、次の番号を設定
         max_order = db.session.query(db.func.max(Exercise.order)).filter_by(category=category).scalar() or 0
-        new_ex = Exercise(name=name, category=category, detail=detail, order=max_order + 1)
+        new_ex = Exercise(name=name, category=category, detail=detail, order=max_order + 1, user_id=session.get("user_id"))
 
         db.session.add(new_ex)
         db.session.commit()
@@ -295,7 +307,8 @@ def show_diary(year, month, day):
                     exercise_id=int(exercise_ids[i]),
                     sets=int(sets_list[i]),
                     reps=int(reps_list[i]),
-                    weight=float(weight_list[i])
+                    weight=float(weight_list[i]),
+                    user_id=session.get("user_id")
                 )
                 db.session.add(log)
 
@@ -325,6 +338,64 @@ def delete_log_for_date(year, month, day):
             db.session.commit()
     # リダイレクト元ページへ戻る
     return redirect(url_for('show_diary', year=year, month=month, day=day))
+
+
+# ========================================
+# ユーザー管理機能（ログイン・個人情報）
+# ========================================
+
+@app.route('/form', methods=["GET", "POST"])
+def form():
+    form = PersonalInfoForm()
+    if form.validate_on_submit():
+        new_person = PersonalInfo(
+            username=form.username.data,
+            email=form.email.data,
+            password=form.password.data,
+            height=form.height.data,
+            weight=form.weight.data
+        )
+        db.session.add(new_person)
+        db.session.commit()
+        return redirect(url_for("user_info", user_id=new_person.id))
+    return render_template("form.html", form=form)
+
+@app.route('/user/<int:user_id>')
+def user_info(user_id):
+    user = PersonalInfo.query.get_or_404(user_id)
+    return render_template("user_info.html", user=user)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = PersonalInfo.query.filter_by(email=form.email.data).first()
+        if user and user.password == form.password.data:
+            session['user_id'] = user.id
+            flash('ログイン成功', 'success')
+            return redirect(url_for('mypage', user_id=user.id))
+        else:
+            flash('ユーザー名またはパスワードが間違っています', 'danger')
+    return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    flash("ログアウトしました", "info")
+    return redirect(url_for('index'))
+
+@app.route('/mypage')
+def mypage():
+    user_id = session.get('user_id')
+    if not user_id:
+        flash("ログインしてください")
+        return redirect(url_for('login'))
+    user = PersonalInfo.query.get(user_id)
+    return render_template('user_info.html', user=user)
+
+@app.route('/start')
+def start():
+    return render_template('start.html')
 
 
 # ========================================

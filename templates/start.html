@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}ようこそ{% endblock %}
+
+{% block content %}
+  <h2>ようこそ MachoMachoMacho へ！</h2>
+  <p>ログインまたは新規登録してください。</p>
+  <a href="{{ url_for('login') }}">ログイン</a> |
+  <a href="{{ url_for('form') }}">新規登録</a>
+{% endblock %}

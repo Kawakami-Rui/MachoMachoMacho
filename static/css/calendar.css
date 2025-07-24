@@ -1,21 +1,89 @@
 
 .today {
-    background-color: #ffcc80;
-    font-weight: bold;
+        background-color: #ffcc80;
+        font-weight: bold;
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
+        width: 100%;
+        margin: 0 auto;
+        border-collapse: collapse;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
 }
 
 th, td {
-    width: 14.28%;
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: center;
+        width: 14.28%;
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: center;
 }
 
 th {
-    background-color: #f2f2f2;
+        background-color: #f2f2f2;
+ }
+
+div  {
+    background-color: #ffffff;
+    color: rgb(5, 241, 166);
+}
+
+/***ランダム名言の設定***/
+.famousquotes {
+    font-size: 1.1rem;
+    font-family: 'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+    color: #37474f;
+    text-align: center;
+    margin-bottom: 1rem;
+    background-color: #fff6e0;
+    border-left: 5px solid #eb2a2a;
+    padding: 1rem;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    white-space: pre-line;
+}
+
+/***土、日を色付きで表現***/
+th:nth-child(1),
+td:nth-child(1) {
+  background-color: #ffe5e5;
+  color: red;
+}
+
+th:nth-child(7),
+td:nth-child(7) {
+  background-color: #61b8f7;
+  color: rgb(32, 113, 245);
+}
+
+td.today { 
+/***今日が土日の場合、todayがオレンジ色で表示されないので、"!important"を使って絶対表示にしている。***/
+  background-color: #ffcc80 !important;
+  font-weight: bold;
+}
+
+/***先月、来月ぼたん***/
+a.next, a.back {
+    text-decoration: none;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #33bbf5;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    margin: 0 8px;
+}
+
+div {
+    color: #f2f2f2;
+    background-color: #f2f2f2
+}
+
+/***ボタンにカーソルをおくと、色が変化する***/
+a.next:hover, a.back:hover {
+    background-color: #1184e8;
 }
