@@ -56,8 +56,8 @@ td:nth-child(1) {
 
 th:nth-child(7),
 td:nth-child(7) {
-  background-color: #61b8f7;
-  color: rgb(32, 113, 245);
+  background-color: #a2d8ff;
+  color: blue;
 }
 
 td.today { 
