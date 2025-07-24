@@ -6,12 +6,14 @@ class PersonalInfo(db.Model):
     __tablename__ = 'personal_info'  # テーブル名
     ### db.Colummでpersonal_infoテーブルの設計図###
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True) #自動でIDを設定。
     username = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(100), nullable=False)
     password = db.Column(db.String(100), nullable=False)
     height = db.Column(db.String(10), nullable=True)
     weight = db.Column(db.String(10), nullable=True)
+
+    user = db.relationship('PersonalInfo', backref=db.backref('exercises', lazy=True))
 
     def __str__(self):
         return f'ユーザー:{self.username}, メール:{self.email}, 身長:{self.height}, 体重:{self.weight}'
@@ -27,7 +29,7 @@ class Exercise(db.Model):
     detail = db.Column(db.String(200), nullable=True)                 # 補足説明（省略可能）
     order = db.Column(db.Integer, nullable=True)                      # 表示順（並び替え用）
     is_deleted = db.Column(db.Boolean, default=False, nullable=False)  # 論理削除フラグ
-
+    user_id = db.Column(db.Integer, db.ForeignKey('personal_info.id'), nullable=False)
 
     def __str__(self):
         return f'種目ID：{self.id} 種目名：{self.name} カテゴリ：{self.category} 詳細：{self.detail}'
@@ -45,6 +47,7 @@ class WorkoutLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)                 # ID
     date = db.Column(db.Date, nullable=False)                    # トレーニング実施日
     exercise_id = db.Column(db.Integer, db.ForeignKey('exercises.id'), nullable=False)  # 種目ID（外部キー）
+    user_id = db.Column(db.Integer, db.ForeignKey('personal_info.id'), nullable=False)  # 外部キー
     sets = db.Column(db.Integer, nullable=True)                  # セット数
     reps = db.Column(db.Integer, nullable=True)                  # レップ数
     weight = db.Column(db.Float, nullable=True)                  # 使用重量（kg）
