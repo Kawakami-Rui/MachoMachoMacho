@@ -2,9 +2,11 @@ from flask import Flask, render_template, request, flash
 from forms import PersonalInfoForm
 from flask import redirect, url_for
 from models import db, PersonalInfo  # ← Exercise 使わないならこれはこれでOK
-#from models import db, PersonalInfo, Exercise#
 import calendar
 import datetime
+from forms import LoginForm  
+from flask import session  # ログイン状態保持に使う
+
 
 # ==================================================
 # インスタンス生成
@@ -26,6 +28,11 @@ with app.app_context():
 # ==================================================
 @app.route('/')
 def index():
+
+    ###if文で、ログイン状態ならそのままカレンダー表示(index.html),未ログインなら新規登録、ログイン画面表示(start.html)。###
+    if 'user_id' not in session:
+        return render_template('start.html')  # 未ログインならstart.htmlへ
+
     """
     トップページのルーティング  
     GETリクエストで年と月を指定してカレンダーを表示
@@ -94,6 +101,46 @@ def form():
 def user_info(user_id):
     user = PersonalInfo.query.get_or_404(user_id)  # IDで検索。なければ404表示。
     return render_template("user_info.html", user=user)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = PersonalInfo.query.filter_by(username=form.username.data).first()
+        if user and user.password == form.password.data:
+            session['user_id'] = user.id  # セッションに保存（ログイン状態）
+            flash('ログイン成功', 'success')
+            return redirect(url_for('user_info', user_id=user.id))
+        else:
+            flash('ユーザー名またはパスワードが間違っています', 'danger')
+    return render_template('login.html', form=form)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('user_id', None)
+    flash("ログアウトしました", "info")
+    return redirect(url_for('index'))
+
+
+
+@app.route('/mypage')
+def mypage():
+    user_id = session.get('user_id')  # ログイン状態なら保存されているuser_idを取り出す
+
+    if not user_id:
+        flash("ログインしてください")
+        return redirect(url_for('login'))  # ログインしてなければログインページへ
+
+    user = PersonalInfo.query.get(user_id)  # ログイン中のユーザー情報をDBから取得
+    return render_template('user_info.html', user=user)  # ユーザー情報ページへ
+
+
+@app.route('/start')
+def start():
+    return render_template('start.html')  # start.htmlを表示する
+
 
 
 # ==================================================

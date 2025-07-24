@@ -13,7 +13,10 @@ class PersonalInfo(db.Model):
     height = db.Column(db.String(10), nullable=True)
     weight = db.Column(db.String(10), nullable=True)
 
-    user = db.relationship('PersonalInfo', backref=db.backref('exercises', lazy=True))
+    exercises = db.relationship('Exercise', backref='user', lazy=True)
+
+    workout_logs = db.relationship('WorkoutLog', backref='user', lazy=True)
+
 
     def __str__(self):
         return f'ユーザー:{self.username}, メール:{self.email}, 身長:{self.height}, 体重:{self.weight}'

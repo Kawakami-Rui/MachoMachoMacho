@@ -1,0 +1,27 @@
+{% extends 'base.html' %} <!--ラベルを継承-->
+
+{% block title %}ログイン{% endblock %}
+
+{% block content %}
+  <h2>ログインページ</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <p>{{ form.username.label }}<br>{{ form.username() }}</p>
+    <p>{{ form.password.label }}<br>{{ form.password() }}</p>
+    <p>{{ form.submit() }}</p>
+    
+    {% for field, errors in form.errors.items() %}
+      {% for error in errors %}
+        <p style="color:red;">{{ error }}</p>
+      {% endfor %}
+    {% endfor %}
+    
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <p style="color:red;">{{ msg }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </form>
+{% endblock %}
