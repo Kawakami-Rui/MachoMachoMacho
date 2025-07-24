@@ -4,6 +4,8 @@ import calendar
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_migrate import Migrate
 from collections import defaultdict, OrderedDict
+from sqlalchemy import func
+from datetime import timedelta
 
 from models import db, Exercise, WorkoutLog
 
@@ -14,7 +16,7 @@ app = Flask(__name__)
 # ==================================================
 # Flaskに対する設定
 # ================================================== 
-    
+
 # 秘密鍵設定（セッション保護などに使用）
 app.config['SECRET_KEY'] = os.urandom(24)
 
@@ -52,6 +54,26 @@ def insert_initial_data():
         db.session.add_all(initial_exercises)
         db.session.commit()
 
+# ================================================
+# WorkoutLogのサンプルデータ挿入
+# ================================================
+def insert_sample_data():
+    """グラフ確認用のサンプルWorkoutLogデータを挿入する（重複防止付き）"""
+    from datetime import date
+
+    if WorkoutLog.query.count() == 0:
+        sample_logs = [
+            WorkoutLog(date=date(2025, 7, 20), exercise_id=1, sets=3, reps=10, weight=40),
+            WorkoutLog(date=date(2025, 7, 20), exercise_id=3, sets=3, reps=8, weight=60),
+            WorkoutLog(date=date(2025, 7, 21), exercise_id=5, sets=4, reps=12, weight=20),
+            WorkoutLog(date=date(2025, 7, 22), exercise_id=2, sets=3, reps=15, weight=15),
+            WorkoutLog(date=date(2025, 7, 22), exercise_id=6, sets=2, reps=20, weight=10),
+            WorkoutLog(date=date(2025, 7, 23), exercise_id=9, sets=5, reps=5, weight=80),
+        ]
+        db.session.add_all(sample_logs)
+        db.session.commit()
+
+
 def get_grouped_exercises():
     """種目をカテゴリごとにグループ化し、並び順でソートして返す"""
     all_exercises = Exercise.query.filter_by(is_deleted=False).order_by(Exercise.category, Exercise.order).all() #Exerciseから全ての種目を取得し、カテゴリと表示順でソート
@@ -73,6 +95,7 @@ def get_grouped_exercises():
 
 def index():
     insert_initial_data()
+    insert_sample_data()
     return redirect_to_today()  # /2025/7 のようなURLへリダイレクト
 
 def redirect_to_today():
@@ -88,7 +111,7 @@ def redirect_to_today():
 @app.route('/<int:year>/<int:month>')
 def calendar_page(year, month):
     """指定された年月のカレンダーを表示"""
-    now = datetime.datetime.now()
+    today = datetime.datetime.now()
     cal = calendar.Calendar(firstweekday=6)  # 日曜始まり
     month_days = cal.monthdayscalendar(year, month)
 
@@ -111,7 +134,7 @@ def calendar_page(year, month):
         year=year,
         month=month,
         month_days=month_days,
-        now=now,
+        today=today,
         prev_year=prev_year,
         prev_month=prev_month,
         next_year=next_year,
@@ -123,7 +146,6 @@ def calendar_page(year, month):
 # ========================================
 @app.route('/exercises', methods=['GET', 'POST'])
 def exercise_settings():
-    from collections import defaultdict, OrderedDict
 
     if request.method == 'POST':
         # クライアントから送られたJSONを取得して新しいExerciseを追加
@@ -238,6 +260,63 @@ def delete_log_for_date(year, month, day):
     return redirect(url_for('show_diary', year=year, month=month, day=day))
 
 
+# ========================================
+# 日ごとの合計重量をグラフ表示
+# ========================================
+
+@app.route('/chart')
+def show_stacked_chart():
+    
+    today = datetime.today().date()
+    week_ago = today - timedelta(days=6)  # 今日を含めて7日間
+
+    # 7日間分のみ取得
+    results = db.session.query(
+        WorkoutLog.date,
+        Exercise.category,
+        func.sum(WorkoutLog.sets * WorkoutLog.reps * WorkoutLog.weight).label('total_weight')
+    ).join(Exercise)\
+     .filter(WorkoutLog.date >= week_ago)\
+     .group_by(WorkoutLog.date, Exercise.category)\
+     .order_by(WorkoutLog.date).all()
+
+    # 整形
+    data_dict = defaultdict(lambda: defaultdict(float))
+    dates = set()
+
+    for date, category, total_weight in results:
+        date_str = date.strftime('%Y-%m-%d')
+        data_dict[date_str][category] = total_weight
+        dates.add(date_str)
+
+    # 過去7日間の日付リスト（欠損日も含める）
+    sorted_dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in reversed(range(7))]
+
+    fixed_category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
+    color_map = {
+        '胸': '#ff6b6b',
+        '肩': '#feca57',
+        '腕': '#1dd1a1',
+        '背中': '#54a0ff',
+        '腹筋': '#a29bfe',
+        '脚': '#ff9f43',
+        'その他': '#dfe6e9'
+    }
+
+    datasets = []
+    for cat in fixed_category_order:
+        values = [data_dict[dt].get(cat, 0) for dt in sorted_dates]
+        datasets.append({
+            'label': cat,
+            'data': values,
+            'backgroundColor': color_map[cat],
+            'borderColor': color_map[cat],
+            'borderWidth': 1
+        })
+
+    datasets.reverse()  # ← 上から胸→肩→…になるように逆順
+
+    return render_template("chart.html", labels=sorted_dates, datasets=datasets)
 # ========================================
 # 実行
 # ========================================
