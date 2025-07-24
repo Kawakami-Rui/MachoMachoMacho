@@ -33,7 +33,6 @@ migrate = Migrate(app, db)
 # ==================================================
 # 初期データ挿入
 # ==================================================
-
 def insert_initial_data():
     if Exercise.query.count() == 0:  # データベースに登録されたExerciseがまだ存在しない場合のみ
         initial_exercises = [
@@ -57,8 +56,7 @@ def insert_initial_data():
 # WorkoutLogのサンプルデータ挿入
 # ================================================
 def insert_sample_data():
-    """グラフ確認用のサンプルWorkoutLogデータを挿入する（重複防止付き）"""
-    if WorkoutLog.query.count() == 0:
+    if WorkoutLog.query.count() == 0:   # 開発環境のみ使用
         sample_logs = [
             WorkoutLog(date=date(2025, 7, 20), exercise_id=1, sets=3, reps=10, weight=40),
             WorkoutLog(date=date(2025, 7, 20), exercise_id=3, sets=3, reps=8, weight=60),
@@ -70,7 +68,9 @@ def insert_sample_data():
         db.session.add_all(sample_logs)
         db.session.commit()
 
-
+# ==================================================
+# ユーティリティ関数
+# ==================================================
 def get_grouped_exercises():
     """種目をカテゴリごとにグループ化し、並び順でソートして返す"""
     all_exercises = Exercise.query.filter_by(is_deleted=False).order_by(Exercise.category, Exercise.order).all() #Exerciseから全ての種目を取得し、カテゴリと表示順でソート
@@ -85,6 +85,62 @@ def get_grouped_exercises():
         ordered_groups[cat] = groups.get(cat, [])  # 存在しなければ空リスト
     return ordered_groups
 
+# ==================================================
+# グラフデータ取得関数
+# ==================================================
+def get_chart_data(start_date, end_date):
+    # クエリ: 日付・種目名・カテゴリごとに集計
+    results = db.session.query(
+        WorkoutLog.date,
+        Exercise.name,
+        Exercise.category,
+        func.sum(WorkoutLog.sets * WorkoutLog.reps * WorkoutLog.weight).label('total_weight')
+    ).join(Exercise)\
+     .filter(WorkoutLog.date.between(start_date, end_date))\
+     .group_by(WorkoutLog.date, Exercise.name, Exercise.category)\
+     .order_by(WorkoutLog.date).all()
+
+    # 日付ごと・種目名ごとに値を格納、種目名→カテゴリのマップも作成
+    data_dict = defaultdict(lambda: defaultdict(float))
+    category_map = {}
+    for date_obj, exercise_name, category, total_weight in results:
+        date_str = date_obj.strftime('%Y-%m-%d')
+        data_dict[date_str][exercise_name] = total_weight
+        category_map[exercise_name] = category
+
+    labels = [(start_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range((end_date - start_date).days + 1)]
+
+    color_map = {
+        '胸': '#ff6b6b',
+        '肩': '#feca57',
+        '腕': '#1dd1a1',
+        '背中': '#54a0ff',
+        '腹筋': '#a29bfe',
+        '脚': '#ff9f43',
+        'その他': '#dfe6e9'
+    }
+
+    # 種目名の一覧をカテゴリ順→名前順でソート
+    category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
+    sorted_exercise_names = []
+    for cat in category_order:
+        sorted_exercise_names.extend(sorted([name for name, c in category_map.items() if c == cat]))
+    # Reverse the order for legend display
+    sorted_exercise_names = list(reversed(sorted_exercise_names))
+    datasets = []
+    for name in sorted_exercise_names:
+        values = [data_dict[dt].get(name, 0) for dt in labels]
+        cat = category_map[name]
+        datasets.append({
+            'label': name,
+            'data': values,
+            'backgroundColor': color_map.get(cat, '#cccccc'),
+            'borderColor': color_map.get(cat, '#cccccc'),
+            'borderWidth': 1,
+            'stack': 'stack1'
+        })
+    return labels, datasets
+
 # ========================================
 # トップページ "/" → 今日の年月へリダイレクト
 # ========================================
@@ -98,15 +154,18 @@ def index():
 def redirect_to_today():
     """現在の日付を取得して、/年/月 にリダイレクト"""
     today = datetime.now()
-    return redirect(url_for('calendar_page', year=today.year, month=today.month))
+    return redirect(url_for('top_page', year=today.year, month=today.month))
 
 
 # ========================================
-# 年・月指定のカレンダー表示ルート
-# 例: /2025/7
+# トップページ
+# → 指定された年月のカレンダーを表示
+# → 今日を含めた過去一週間のグラフを表示
+# → 筋肉人形で部位ごとのトレーニング履歴を確認
+# → 種目設定ページへのリンクを表示
 # ========================================
 @app.route('/<int:year>/<int:month>')
-def calendar_page(year, month):
+def top_page(year, month):
     """指定された年月のカレンダーを表示"""
     today = datetime.now()
     cal = calendar.Calendar(firstweekday=6)  # 日曜始まり
@@ -126,6 +185,13 @@ def calendar_page(year, month):
         next_month = 1
         next_year += 1
 
+
+    # ▼ グラフ用データ生成（過去7日分）
+    end_date = today.date()
+    start_date = end_date - timedelta(days=6)
+
+    labels, datasets = get_chart_data(start_date, end_date)
+
     return render_template(
         'index.html',
         year=year,
@@ -135,8 +201,12 @@ def calendar_page(year, month):
         prev_year=prev_year,
         prev_month=prev_month,
         next_year=next_year,
-        next_month=next_month
+        next_month=next_month,
+        labels=labels,
+        datasets=datasets,  # ← グラフデータを渡す
+        reverse_legend=True
     )
+
 
 # ========================================
 # 種目設定ページ
@@ -258,61 +328,12 @@ def delete_log_for_date(year, month, day):
 
 
 # ========================================
-# 日ごとの合計重量をグラフ表示
+# 週別の合計重量をグラフ表示
 # ========================================
 
-@app.route('/chart')
-def show_stacked_chart():
-    today = datetime.now().date()
-    week_ago = today - timedelta(days=6)  # 今日を含めて7日間
 
-    # 7日間分のみ取得
-    results = db.session.query(
-        WorkoutLog.date,
-        Exercise.category,
-        func.sum(WorkoutLog.sets * WorkoutLog.reps * WorkoutLog.weight).label('total_weight')
-    ).join(Exercise)\
-     .filter(WorkoutLog.date >= week_ago)\
-     .group_by(WorkoutLog.date, Exercise.category)\
-     .order_by(WorkoutLog.date).all()
 
-    # 整形
-    data_dict = defaultdict(lambda: defaultdict(float))
-    dates = set()
 
-    for date_val, category, total_weight in results:
-        date_str = date_val.strftime('%Y-%m-%d')
-        data_dict[date_str][category] = total_weight
-        dates.add(date_str)
-
-    # 過去7日間の日付リスト（欠損日も含める）
-    sorted_dates = [(today - timedelta(days=i)).strftime('%Y-%m-%d') for i in reversed(range(7))]
-
-    fixed_category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
-    color_map = {
-        '胸': '#ff6b6b',
-        '肩': '#feca57',
-        '腕': '#1dd1a1',
-        '背中': '#54a0ff',
-        '腹筋': '#a29bfe',
-        '脚': '#ff9f43',
-        'その他': '#dfe6e9'
-    }
-
-    datasets = []
-    for cat in fixed_category_order:
-        values = [data_dict[dt].get(cat, 0) for dt in sorted_dates]
-        datasets.append({
-            'label': cat,
-            'data': values,
-            'backgroundColor': color_map[cat],
-            'borderColor': color_map[cat],
-            'borderWidth': 1
-        })
-
-    datasets.reverse()  # ← 上から胸→肩→…になるように逆順
-
-    return render_template("chart.html", labels=sorted_dates, datasets=datasets)
 # ========================================
 # 実行
 # ========================================
