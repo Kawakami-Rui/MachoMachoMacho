@@ -38,6 +38,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (exerciseList.querySelector(".input-row")) return;
 
+        //追加ボタンを非表示にする
+        const addButtonWrapper = button.closest(".add-button-wrapper");
+        if (addButtonWrapper) addButtonWrapper.style.display = "none";
+
         // 新しい種目入力用フォームを作成
         const inputRow = document.createElement("div");
         inputRow.className = "input-row";
@@ -60,6 +64,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // 取消ボタンで入力フォームを削除
         inputRow.querySelector(".cancel.button").addEventListener("click", () => {
             inputRow.remove();
+            //追加ボタンを再表示する
+            if (addButtonWrapper) addButtonWrapper.style.display = "block";
         });
 
         // 保存ボタンがクリックされたときの処理
@@ -120,6 +126,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     attachMoveEvents(row);
                 });
                 inputRow.remove();
+
+                // 追加ボタンを再表示
+              if (addButtonWrapper) addButtonWrapper.style.display = "block";
             } else {
                 alert("保存に失敗しました");
             }
