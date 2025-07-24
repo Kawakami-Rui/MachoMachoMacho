@@ -1,11 +1,10 @@
 import os
-import datetime
 import calendar
 from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_migrate import Migrate
 from collections import defaultdict, OrderedDict
 from sqlalchemy import func
-from datetime import timedelta
+from datetime import datetime, timedelta, date
 
 from models import db, Exercise, WorkoutLog
 
@@ -59,8 +58,6 @@ def insert_initial_data():
 # ================================================
 def insert_sample_data():
     """グラフ確認用のサンプルWorkoutLogデータを挿入する（重複防止付き）"""
-    from datetime import date
-
     if WorkoutLog.query.count() == 0:
         sample_logs = [
             WorkoutLog(date=date(2025, 7, 20), exercise_id=1, sets=3, reps=10, weight=40),
@@ -100,7 +97,7 @@ def index():
 
 def redirect_to_today():
     """現在の日付を取得して、/年/月 にリダイレクト"""
-    today = datetime.datetime.now()
+    today = datetime.now()
     return redirect(url_for('calendar_page', year=today.year, month=today.month))
 
 
@@ -111,7 +108,7 @@ def redirect_to_today():
 @app.route('/<int:year>/<int:month>')
 def calendar_page(year, month):
     """指定された年月のカレンダーを表示"""
-    today = datetime.datetime.now()
+    today = datetime.now()
     cal = calendar.Calendar(firstweekday=6)  # 日曜始まり
     month_days = cal.monthdayscalendar(year, month)
 
@@ -209,12 +206,12 @@ def reorder_exercises():
 @app.route('/workout-log/<int:year>/<int:month>/<int:day>', methods=['GET', 'POST'])
 def show_diary(year, month, day):
     try:
-        date = datetime.date(year, month, day)
+        date_obj = date(year, month, day)
     except ValueError:
         return "Invalid date", 400
 
     if request.method == 'POST':
-        date = datetime.date(year, month, day)
+        date_obj = date(year, month, day)
 
         exercise_ids = request.form.getlist('exercise_id')
         sets_list = request.form.getlist('sets')
@@ -224,7 +221,7 @@ def show_diary(year, month, day):
         for i in range(len(exercise_ids)):
             if exercise_ids[i] and sets_list[i] and reps_list[i] and weight_list[i]:
                 log = WorkoutLog(
-                    date=date,
+                    date=date_obj,
                     exercise_id=int(exercise_ids[i]),
                     sets=int(sets_list[i]),
                     reps=int(reps_list[i]),
@@ -236,7 +233,7 @@ def show_diary(year, month, day):
         return redirect(url_for('show_diary', year=year, month=month, day=day))
 
     # 表示時：登録済みのログと登録用の種目一覧
-    logs = WorkoutLog.query.filter_by(date=date).all()
+    logs = WorkoutLog.query.filter_by(date=date_obj).all()
 
     ordered_groups = get_grouped_exercises()
 
@@ -266,8 +263,7 @@ def delete_log_for_date(year, month, day):
 
 @app.route('/chart')
 def show_stacked_chart():
-    
-    today = datetime.today().date()
+    today = datetime.now().date()
     week_ago = today - timedelta(days=6)  # 今日を含めて7日間
 
     # 7日間分のみ取得
@@ -284,8 +280,8 @@ def show_stacked_chart():
     data_dict = defaultdict(lambda: defaultdict(float))
     dates = set()
 
-    for date, category, total_weight in results:
-        date_str = date.strftime('%Y-%m-%d')
+    for date_val, category, total_weight in results:
+        date_str = date_val.strftime('%Y-%m-%d')
         data_dict[date_str][category] = total_weight
         dates.add(date_str)
 
