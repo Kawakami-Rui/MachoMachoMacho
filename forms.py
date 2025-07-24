@@ -16,6 +16,6 @@ class PersonalInfoForm(FlaskForm):
 
             ###ログイン用のフォーム###
 class LoginForm(FlaskForm):
-    username = StringField('ユーザー名', validators=[DataRequired()])
+    email = StringField('メールアドレス', validators=[DataRequired()])
     password = PasswordField('パスワード', validators=[DataRequired()])
     submit = SubmitField('ログイン')

@@ -107,7 +107,7 @@ def user_info(user_id):
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = PersonalInfo.query.filter_by(username=form.username.data).first()
+        user = PersonalInfo.query.filter_by(email=form.email.data).first()
         if user and user.password == form.password.data:
             session['user_id'] = user.id  # セッションに保存（ログイン状態）
             flash('ログイン成功', 'success')
