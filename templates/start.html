@@ -6,7 +6,7 @@
 <h2>ようこそ MachoMachoMacho へ！</h2>
 <p>ログインまたは新規登録してください。</p>
 
-<!-- 切り替えボタン -->
+<!-- ボタン -->
 <button onclick="showLogin()">ログイン</button>
 <button onclick="showRegister()">新規登録</button>
 
@@ -14,7 +14,7 @@
 <div id="loginForm" style="display: none;">
   <form action="{{ url_for('login') }}" method="post">
     {{ login_form.hidden_tag() }}
-<p>{{ login_form.email.label }}<br>{{ login_form.email() }}</p>
+    <p>{{ login_form.email.label }}<br>{{ login_form.email() }}</p>
     <p>{{ login_form.password.label }}<br>{{ login_form.password() }}</p>
     <p>{{ login_form.submit() }}</p>
   </form>
@@ -33,16 +33,9 @@
     <p>{{ register_form.submit() }}</p>
   </form>
 </div>
+{% endblock %}
 
-<!-- JavaScriptで表示切り替え -->
-<script>
-function showLogin() {
-  document.getElementById("loginForm").style.display = "block";
-  document.getElementById("registerForm").style.display = "none";
-}
-function showRegister() {
-  document.getElementById("registerForm").style.display = "block";
-  document.getElementById("loginForm").style.display = "none";
-}
-</script>
+{% block scripts %}
+<!-- JSファイルの読み込み -->
+<script src="{{ url_for('static', filename='js/forms.js') }}"></script>
 {% endblock %}
