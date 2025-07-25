@@ -325,7 +325,26 @@ def delete_log_for_date(year, month, day):
             db.session.commit()
     # リダイレクト元ページへ戻る
     return redirect(url_for('show_diary', year=year, month=month, day=day))
+# app.pyに以下のコードを追加
 
+# ========================================
+# 特定のカテゴリ（部位）の種目を表示するページ
+# ========================================
+@app.route('/category/<string:category_name>')
+def show_category_exercises(category_name):
+    # URLから取得したカテゴリ名を使って、そのカテゴリに属する種目を取得
+    # 論理削除されていない種目を、order順に並べて取得します
+    exercises_in_category = Exercise.query.filter_by(
+        category=category_name,
+        is_deleted=False
+    ).order_by(Exercise.order).all()
+
+    # カテゴリ名と取得した種目リストをテンプレートに渡す
+    return render_template(
+        'category_detail.html',
+        category=category_name, # テンプレートにカテゴリ名を渡す
+        exercises=exercises_in_category # テンプレートに種目リストを渡す
+    )
 
 # ========================================
 # 週別の合計重量をグラフ表示

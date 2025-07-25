@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category }}の種目</title> <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        h1 { color: #333; }
+        ul { list-style-type: none; padding: 0; }
+        li { background-color: #fff; margin-bottom: 10px; padding: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        li strong { color: #0056b3; }
+        .no-exercises { color: #666; font-style: italic; }
+        .back-link { display: block; margin-top: 20px; color: #007bff; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>{{ category }}の種目一覧</h1> {% if exercises %}
+    <ul>
+        {% for exercise in exercises %}
+        <li>
+            <strong>{{ exercise.name }}</strong><br>
+            詳細: {{ exercise.detail }}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="no-exercises">このカテゴリにはまだ種目が登録されていません。</p>
+    {% endif %}
+
+    <p><a href="{{ url_for('index') }}">← トップメニューへ戻る</a></p>
+</body>
+</html>
