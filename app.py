@@ -393,9 +393,12 @@ def mypage():
     user = PersonalInfo.query.get(user_id)
     return render_template('user_info.html', user=user)
 
-@app.route('/start')
+@app.route('/start', methods=["GET", "POST"])
 def start():
-    return render_template('start.html')
+    login_form = LoginForm()
+    register_form = PersonalInfoForm()
+    return render_template("start.html", login_form=login_form, register_form=register_form)
+
 
 
 # ========================================

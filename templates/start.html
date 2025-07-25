@@ -3,8 +3,46 @@
 {% block title %}ようこそ{% endblock %}
 
 {% block content %}
-  <h2>ようこそ MachoMachoMacho へ！</h2>
-  <p>ログインまたは新規登録してください。</p>
-  <a href="{{ url_for('login') }}">ログイン</a> |
-  <a href="{{ url_for('form') }}">新規登録</a>
+<h2>ようこそ MachoMachoMacho へ！</h2>
+<p>ログインまたは新規登録してください。</p>
+
+<!-- 切り替えボタン -->
+<button onclick="showLogin()">ログイン</button>
+<button onclick="showRegister()">新規登録</button>
+
+<!-- ログインフォーム -->
+<div id="loginForm" style="display: none;">
+  <form action="{{ url_for('login') }}" method="post">
+    {{ login_form.hidden_tag() }}
+<p>{{ login_form.email.label }}<br>{{ login_form.email() }}</p>
+    <p>{{ login_form.password.label }}<br>{{ login_form.password() }}</p>
+    <p>{{ login_form.submit() }}</p>
+  </form>
+</div>
+
+<!-- 登録フォーム -->
+<div id="registerForm" style="display: none;">
+  <form action="{{ url_for('form') }}" method="post">
+    {{ register_form.hidden_tag() }}
+    <p>{{ register_form.username.label }}<br>{{ register_form.username() }}</p>
+    <p>{{ register_form.email.label }}<br>{{ register_form.email() }}</p>
+    <p>{{ register_form.password.label }}<br>{{ register_form.password() }}</p>
+    <p>{{ register_form.confirm_password.label }}<br>{{ register_form.confirm_password() }}</p>
+    <p>{{ register_form.height.label }}<br>{{ register_form.height() }}</p>
+    <p>{{ register_form.weight.label }}<br>{{ register_form.weight() }}</p>
+    <p>{{ register_form.submit() }}</p>
+  </form>
+</div>
+
+<!-- JavaScriptで表示切り替え -->
+<script>
+function showLogin() {
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("registerForm").style.display = "none";
+}
+function showRegister() {
+  document.getElementById("registerForm").style.display = "block";
+  document.getElementById("loginForm").style.display = "none";
+}
+</script>
 {% endblock %}
