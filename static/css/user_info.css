@@ -1,0 +1,51 @@
+/* ユーザー情報の見出し */
+h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-top: 2rem;
+    color: #333;
+}
+
+/* 情報リスト全体 */
+ul {
+    list-style-type: none;
+    padding: 0;
+    max-width: 500px;
+    margin: 1.5rem auto;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 各項目 */
+ul li {
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+    font-size: 1.1rem;
+    color: #444;
+}
+
+/* 最後の項目だけボーダー無し */
+ul li:last-child {
+    border-bottom: none;
+}
+
+
+a:hover {
+    background-color: #1aa9e2;
+}
+
+/* 戻るボタン */
+.btn {
+    display: block;
+    text-align: center;
+    margin: 2rem auto;
+    width: 120px;
+    padding: 0.6rem 1rem;
+    background-color: #33bbf5;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}

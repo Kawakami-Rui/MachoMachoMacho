@@ -1,53 +1,48 @@
-<!DOCTYPE html>
-<html lang="ja"> <!---java-scriptを使えるようにする--->
-<head>
-  <meta charset="UTF-8">
-    <title>{{ year }}年{{ month }}月のカレンダー</title>
-</head>
-    <body>
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/calendar.css') }}">
+{% endblock %}
+<h2>{{ year }}年{{ month }}月のカレンダー</h2>
 
-      <h1 id="output" style="white-space: pre-line;" class="famousquotes"></h1> <!----- ランダム文字列の表示場所
-      　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　\nを使ってリスト出力する文章を改行可能にしている。------>
+<!-- 月移動ナビゲーション -->
+<div style="margin: 1rem 0;">
+    <a href="{{ url_for('top_page', year=prev_year, month=prev_month) }}" class="back">← 前月</a> |
+    <a href="{{ url_for('top_page', year=next_year, month=next_month) }}" class="next">次月 →</a>
+</div>
 
-      <h2>{{ year }}年{{ month }}月のカレンダー</h2>
+<table>
+    <thead>
+        <tr>
+            <th>日</th>
+            <th>月</th>
+            <th>火</th>
+            <th>水</th>
+            <th>木</th>
+            <th>金</th>
+            <th>土</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for week in month_days %}
+        <tr>
+            {% for day in week %}
+                {% if day == 0 %}
+                    <td></td>
+                {% else %}
+                <!-- 今日のページ関連に飛ぶようにしたい部分 -->
+                    <td class="{% if day == today.day and month == today.month and year == today.year %}today{% endif %}">
+                        {# dayが今日の後の日付（未来の日付）かどうかをテンプレートエンジン側で判定 #}
+                    {% if day != 0 and (year < today.year or (year == today.year and month < today.month) or (year == today.year and month == today.month and day <= today.day)) %}
+                        <a href="{{ url_for('show_diary', year=year, month=month, day=day) }}">{{ day }}</a>
+                    {% else %}
+                        {{ day }}
+                    {% endif %}
+</td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-      <div style="margin: 1rem 0;" >
-          <a href="/?year={{ prev_year }}&month={{ prev_month }}" class="next">← 前月</a> |
-          <a href="/?year={{ next_year }}&month={{ next_month }}" class="back">次月 →</a>
-      </div>
-
-     <table>
-       <thead>
-          <tr>
-              <th>日</th>
-              <th>月</th>
-              <th>火</th>
-              <th>水</th>
-              <th>木</th>
-              <th>金</th>
-              <th>土</th>
-          </tr>
-       </thead>
-              <tbody>
-                 {% for week in month_days %}
-                <tr>
-                 {% for day in week %}
-                   {% if day == 0 %}
-                      <td></td>
-                  {% else %}
-                      <td class="{% if day == now.day and month == now.month and year == now.year %}today{% endif %}">
-                          <a href="https://www.u-ryukyu.ac.jp">{{ day }}</a>
-                      </td>
-                  {% endif %}
-              {% endfor %}
-          </tr>
-          {% endfor %}
-      </tbody>
-  </table>
-
-  <p>今日を <span style="background-color:#ffcc80;">オレンジ色</span> で表示している</p>
-
-  <!-- staticないのJS読み込み -->
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
-</body>
+<p>今日を <span style="background-color:#ffcc80;">オレンジ色</span> で表示している</p>
 </html>

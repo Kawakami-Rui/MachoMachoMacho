@@ -2,6 +2,12 @@
 
 {% block title %}ユーザー情報{% endblock %}
 
+{% block head %}
+{{ super() }}
+<!-- ユーザー情報のCSSファイルを読み込み -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/user_info.css') }}">
+{% endblock %}
+
 {% block content %}
 
 <!--データベースから情報取得、表示する(jinja2構文)-->

@@ -3,8 +3,40 @@
 {% block title %}ホーム{% endblock %}
 
 {% block content %}
+
+<!-- 名言表示用 -->
+<div id="output" class="famousquotes"></div>
+
 <!--ここでcalendar.htmlを呼び出す-->
 {% include "calendar.html" %}
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>カテゴリ別 積み上げグラフ</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+</head>
+<body>
+    <h2>直近一週間の合計重量</h2>
+    <canvas id="stackedChart" width="600" height="300"></canvas>
+
+    <!-- JSONデータをscriptタグに埋め込む -->
+    <script id="chart-data" type="application/json">
+        {
+            "labels": {{ labels | tojson | safe }},
+            "datasets": {{ datasets | tojson | safe }}
+        }
+    </script>
+</body>
+</html>
+
+<p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
+
 <p>Flaskでチーム開発</p>
+
+<!-- 編集用のJavaScriptファイルを読み込み -->
+<script src="{{ url_for('static', filename='js/muscle_quotes.js') }}"></script>
+
 {% endblock %}

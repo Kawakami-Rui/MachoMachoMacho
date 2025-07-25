@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}ホーム{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- 編集用のcssファイルを読み込み -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/training_log.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- トレーニング日を表示 -->
+<h2>{{ year }}年{{ month }}月{{ day }}日のトレーニングログ</h2>
+
+<!-- 新しいトレーニング記録の入力フォーム -->
+<form method="POST" action="{{ url_for('show_diary', year=year, month=month, day=day) }}" class="training-log-form">
+    <div id="log-container" class="log-container">
+        <div class="log-row log-form-row">
+            <!-- 種目選択（カテゴリごとにグループ） -->
+            <select name="exercise_id" onchange="updateCategory(this)" class="exercise-select">
+                {% for category, exercises in grouped_exercises.items() %}
+                    <optgroup label="{{ category }}">
+                    {% for ex in exercises %}
+                        <option value="{{ ex.id }}" data-category="{{ ex.category }}">
+                        {{ ex.name }}
+                        </option>
+                    {% endfor %}
+                    </optgroup>
+                {% endfor %}
+            </select>
+            <!-- 隠しフィールド（選択されたカテゴリを格納） -->
+            <input type="hidden" name="category" value="">
+            <!-- セット数・レップ数・重量の入力欄 -->
+            <input type="number" name="sets" placeholder="セット数" class="input-sets" min="1" required>
+            <div class="error-message"></div>
+            <input type="number" name="reps" placeholder="レップ数" class="input-reps" min="1" required>
+            <div class="error-message"></div>
+            <input type="number" name="weight" placeholder="重量（kg）" class="input-weight" min="1" required>
+            <div class="error-message"></div>
+        </div>
+    </div>
+    <!-- 記録保存ボタン -->
+    <button type="submit" class="submit-btn">記録保存</button>
+</form>
+
+<hr>
+
+<!-- 既存のトレーニング記録リスト -->
+<h3>既存の記録</h3>
+<ul class="training-log-list">
+    {% for log in logs %}
+        <li class="training-log-item {{ log.exercise.category|lower }}">
+            <!-- 各記録は個別フォームで削除できる -->
+            <form method="POST" action="{{ url_for('delete_log_for_date', year=year, month=month, day=day) }}" class="log-item-form">
+                <input type="hidden" name="log_id" value="{{ log.id }}">
+                <div class="log-item-wrapper">
+                    <span class="log-item-text">
+                        {{ log.exercise.name }}: {{ log.sets }}セット | {{ log.reps }}レップ | {{ log.weight }}kg
+                    </span>
+                    <div class="log-item-delete">
+                        <button type="submit" class="delete-log-btn">削除</button>
+                    </div>
+                </div>
+            </form>
+        </li>
+    {% else %}
+        <!-- 記録がない場合の表示 -->
+        <li class="training-log-empty">まだ記録がありません</li>
+    {% endfor %}
+</ul>
+
+<!-- 総負荷量の表示 -->
+<p id="total-load">総負荷量: <span id="total-weight">0</span> kg</p>
+
+<!-- トップページへのリンク -->
+<p><a href="{{ url_for('index') }}">← トップメニューへ戻る</a></p>
+
+<!-- 編集用のJavaScriptファイルを読み込み -->
+<script src="{{ url_for('static', filename='js/training_log.js') }}"></script>
+
+{% endblock %}

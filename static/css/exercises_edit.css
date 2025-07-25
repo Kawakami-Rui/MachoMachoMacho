@@ -1,0 +1,154 @@
+/* 表全体の幅やレイアウトを固定し、セルの境界を詰める */
+table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+/* セル内の文字を左寄せにし、パディングを設定して見やすくする */
+th, td {
+    text-align: left;
+    padding: 8px;
+    word-wrap: break-word;
+}
+
+/* テーブルヘッダーに背景色を追加 */
+th {
+    background-color: #f2f2f2;
+}
+
+
+/* 並び替えボタン（↑↓）の表示設定 */
+.order-buttons {
+    display: inline-block;
+    margin-left: 10px;
+}
+.order-buttons button {
+    margin-left: 2px;
+    padding: 2px 6px;
+    font-size: 12px;
+}
+/* 編集操作部分の下部に余白をつける */
+.edit-controls {
+        margin-bottom: 10px;
+}
+
+
+
+/* タイトルと編集ボタンを左右に分けて配置する */
+.page-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+/* 共通行のレイアウト（中央揃え） */
+.exercise-header,
+.exercise-row,
+.no-entry {
+    display: flex;
+    padding: 4px 0;
+    align-items: center;
+}
+
+/* 入力フォーム行のみ上揃え */
+.input-row {
+    display: flex;
+    padding: 4px 0;
+    align-items: flex-start;
+}
+
+/* 入力欄を列の幅いっぱいに */
+.input-row input {
+    width: 95%;
+    box-sizing: border-box;
+    padding: 4px 8px;
+    font-size: 14px;
+}
+
+/* ヘッダーの下に線を入れて見やすくする */
+.exercise-header {
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+}
+
+/* カテゴリ名のラベル表示 */
+.group-title {
+    font-weight: bold;
+    padding: 6px 0;
+}
+
+/* 各列の基本的な幅設定（operationだけ固定幅） */
+.col {
+    flex: 1;
+}
+.col.operation {
+    flex: 0 0 100px;
+    display: flex;
+    gap: 4px;
+}
+
+/* 各種ボタンの共通スタイル（見た目やカーソル）＊個別に設定しない時のデフォルト設定 */
+.button {
+    font-size: 14px;
+    padding: 4px 6px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* ボタンのホバー時の色変更 */
+.button:hover {
+    background-color: #f0f0f0;
+}
+
+
+/* 削除ボタンのみ変更 */
+.delete.button {
+    background-color: #ffcccc;
+    color: #d9534f;
+    border-color: #d9534f;
+}
+
+
+/* 保存ボタンのみ変更 */
+.save.button {
+    background-color: #dff0d8;
+    color: #3c763d;
+    border-color: #3c763d;
+}
+
+/* 取消ボタンのみ変更 */
+.cancel.button {
+    background-color: #ceedf7;
+    color: #6191a0;
+    border-color: #3d7b8e;
+}
+
+
+/* ＋追加ボタンの位置を右下に配置 */
+.add-button-wrapper {
+    text-align: right;
+    margin-top: 4px;
+}
+/* 種目が未登録のときの表示スタイル */
+.no-entry {
+    font-style: italic;
+    color: #666;
+}
+
+/* 種目名列にエラーメッセージを表示するための基準位置を設定 */
+.col.name {
+    position: relative; /* これがないと absolute の基準がズレます */
+}
+
+/* エラーメッセージの見た目を調整 */
+.error-message {
+    display: none;
+    color: red;
+    font-size: 0.7em;
+    margin-top: 2px;
+}

@@ -2,6 +2,12 @@
 
 {% block title %}個人情報入力フォーム{% endblock %}
 
+{% block head %}
+{{ super() }}
+<!-- 編集用のcssファイルを読み込み -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+{% endblock %}
+
 {% block content %}
   <h1>個人情報、パスワードを入力保存してください</h1>
   <form action="{{ url_for('form') }}" method="post" class="formssss">

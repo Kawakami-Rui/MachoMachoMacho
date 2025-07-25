@@ -2,8 +2,13 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}MachoMachoMacho{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>{% block title %}
+        MachoMachoMacho{% endblock %}
+    </title>
+    {% block head %}
+    <!-- 編集用のCSSファイルを読み込み -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% endblock %}
 </head>
 <body>
     <header>
@@ -12,7 +17,6 @@
 
     <main>
         {% block content %}
-        <!--継承先の内容はこの間に表示される（上下にラベル、間にカレンダーなど）-->
         {% endblock %}
     </main>
 
