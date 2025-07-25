@@ -5,7 +5,7 @@
 
 <!-- 月移動ナビゲーション -->
 <div style="margin: 1rem 0;">
-    <a href="{{ url_for('top_page', year=prev_year, month=prev_month) }}" class="back">← 前月</a> |
+    <a href="{{ url_for('top_page', year=prev_year, month=prev_month) }}" class="back">← 前月</a>
     <a href="{{ url_for('top_page', year=next_year, month=next_month) }}" class="next">次月 →</a>
 </div>
 
@@ -30,13 +30,12 @@
                 {% else %}
                 <!-- 今日のページ関連に飛ぶようにしたい部分 -->
                     <td class="{% if day == today.day and month == today.month and year == today.year %}today{% endif %}">
-                        {# dayが今日の後の日付（未来の日付）かどうかをテンプレートエンジン側で判定 #}
-                    {% if day != 0 and (year < today.year or (year == today.year and month < today.month) or (year == today.year and month == today.month and day <= today.day)) %}
-                        <a href="{{ url_for('show_diary', year=year, month=month, day=day) }}">{{ day }}</a>
-                    {% else %}
-                        {{ day }}
-                    {% endif %}
-</td>
+                        {% if day != 0 and (year < today.year or (year == today.year and month < today.month) or (year == today.year and month == today.month and day <= today.day)) %}
+                            <a href="{{ url_for('show_diary', year=year, month=month, day=day) }}"><span class="day-number">{{ day }}</span></a>
+                        {% else %}
+                            <span class="day-number">{{ day }}</span>
+                        {% endif %}
+                    </td>
                 {% endif %}
             {% endfor %}
         </tr>
