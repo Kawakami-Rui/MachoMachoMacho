@@ -30,6 +30,11 @@
 </html>
 
 <p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
-<p><a href="{{ url_for('show_category_exercises', category_name='腕') }}">→ 腕</a></p>
 <p><a href="{{ url_for('show_category_exercises', category_name='胸') }}">→ 胸</a></p>
+<p><a href="{{ url_for('show_category_exercises', category_name='肩') }}">→ 肩 </a></p>
+<p><a href="{{ url_for('show_category_exercises', category_name='腕') }}">→ 腕</a></p>
+<p><a href="{{ url_for('show_category_exercises', category_name='背中') }}">→ 背中</a></p>
+<p><a href="{{ url_for('show_category_exercises', category_name='腹筋') }}">→ 腹筋</a></p>
+<p><a href="{{ url_for('show_category_exercises', category_name='脚') }}">→ 脚</a></p>
+
 {% endblock %}
