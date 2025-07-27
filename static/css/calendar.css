@@ -1,72 +1,80 @@
-
-.today {
-        background-color: #ffcc80;
-        font-weight: bold;
+/* 今日の日付のスタイル */
+td.today {
+    background-color: #ffd08a !important;
+    font-weight: bold;
 }
 
+/* テーブル全体のスタイル */
 table {
-        width: 100%;
-        margin: 0 auto;
-        border-collapse: collapse;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        background-color: #fff;
-        border-radius: 8px;
-        overflow: hidden;
+    width: 100%;
+    margin: 0 auto;
+    border-collapse: collapse;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
+/* 曜日ヘッダーと日付セルの共通スタイル */
 th, td {
-        width: 14.28%;
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: center;
+    width: 14.28%;
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
 }
 
+/* 曜日ヘッダーの背景色 */
 th {
-        background-color: #f2f2f2;
- }
-
-div  {
-    background-color: #ffffff;
-    color: rgb(5, 241, 166);
+    background-color: #f2f2f2;
 }
 
-/***ランダム名言の設定***/
+/* 日付の数字のみを強調 */
+.day-number {
+    font-size: 1rem;
+    display: inline-block;
+    line-height: 50px;
+    color: #3b3535;
+}
+
+a .day-number:hover {
+    color: #ffffff;
+    background-color: #5d5d5d3c;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    transition: background-color 0.3s ease;
+}
+/* ランダム名言のスタイル */
 .famousquotes {
     font-size: 1.1rem;
     font-family: 'Yu Gothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
     color: #37474f;
     text-align: center;
-    margin-bottom: 1rem;
+    margin: 0 auto 1rem auto;
     background-color: #fff6e0;
     border-left: 5px solid #eb2a2a;
     padding: 1rem;
     width: 80%;
-    margin-left: auto;
-    margin-right: auto;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     white-space: pre-line;
 }
 
-/***土、日を色付きで表現***/
+/* 日曜日の背景と文字色 */
 th:nth-child(1),
 td:nth-child(1) {
-  background-color: #ffe5e5;
-  color: red;
+    background-color: #ffe5e5;
+    color: red;
 }
 
+/* 土曜日の背景と文字色 */
 th:nth-child(7),
 td:nth-child(7) {
-  background-color: #a2d8ff;
-  color: blue;
+    background-color: #a2d8ff;
+    color: blue;
 }
 
-td.today { 
-/***今日が土日の場合、todayがオレンジ色で表示されないので、"!important"を使って絶対表示にしている。***/
-  background-color: #ffcc80 !important;
-  font-weight: bold;
-}
-
-/***先月、来月ぼたん***/
+/* ナビゲーションボタンのスタイル */
 a.next, a.back {
     text-decoration: none;
     font-weight: bold;
@@ -78,12 +86,6 @@ a.next, a.back {
     margin: 0 8px;
 }
 
-div {
-    color: #f2f2f2;
-    background-color: #f2f2f2
-}
-
-/***ボタンにカーソルをおくと、色が変化する***/
 a.next:hover, a.back:hover {
     background-color: #1184e8;
 }

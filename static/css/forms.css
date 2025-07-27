@@ -1,65 +1,45 @@
-.welcome-title {
-  text-align: center;
-  font-size: 2rem;
-  color: #333;
-  margin-top: 2rem;
+form {
+    color: #333;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 2rem auto;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-.welcome-sub {
-  text-align: center;
-  color: #777;
-  margin-bottom: 1.5rem;
+/* ラベルや入力欄の整列 */
+form p {
+    margin-bottom: 1.2rem;
 }
 
-.button-container {
-  text-align: center;
-  margin-bottom: 2rem;
+/* 入力欄のスタイル */
+form input[type="text"],
+form input[type="password"],
+form input[type="email"] {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
 }
 
-.toggle-btn {
-  background-color: #33bbf5;
-  color: white;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  margin: 0 0.5rem;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s;
+/* 送信ボタンのスタイル */
+form input[type="submit"], 
+form button {
+    background-color: #33bbf5;
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
 }
 
-.toggle-btn:hover {
-  background-color: #1a9ed9;
-}
-
-.form-container {
-  max-width: 400px;
-  margin: 0 auto;
-  background: #f9f9f9;
-  padding: 1.5rem;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.input-field {
-  width: 100%;
-  padding: 0.5rem;
-  margin-top: 0.2rem;
-  margin-bottom: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
-.submit-btn {
-  width: 100%;
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 0.7rem;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.submit-btn:hover {
-  background-color: #218838;
+form input[type="submit"]:hover,
+form button:hover {
+    background-color: #1aa9e2;
 }
