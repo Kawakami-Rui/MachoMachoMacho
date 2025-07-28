@@ -5,8 +5,11 @@ from flask_migrate import Migrate
 from collections import defaultdict, OrderedDict
 from sqlalchemy import func
 from datetime import datetime, timedelta, date
+# from models import ExerciseLog
 
 from models import db, Exercise, WorkoutLog
+from datetime import datetime
+
 
 # Flaskアプリケーションの初期化
 app = Flask(__name__)
@@ -149,7 +152,13 @@ def get_chart_data(start_date, end_date):
 def index():
     insert_initial_data()
     insert_sample_data()
+    # return redirect(url_for('index'))
     return redirect_to_today()  # /2025/7 のようなURLへリダイレクト
+
+# @app.route('/')
+# def index():
+#     exercises = Exercise.query.filter_by(is_deleted=False).order_by(Exercise.category, Exercise.order).all()
+#     return render_template('index.html', exercises=exercises)
 
 def redirect_to_today():
     """現在の日付を取得して、/年/月 にリダイレクト"""
@@ -192,6 +201,8 @@ def top_page(year, month):
 
     labels, datasets = get_chart_data(start_date, end_date)
 
+    ordered_groups = get_grouped_exercises()
+
     return render_template(
         'index.html',
         year=year,
@@ -204,7 +215,8 @@ def top_page(year, month):
         next_month=next_month,
         labels=labels,
         datasets=datasets,  # ← グラフデータを渡す
-        reverse_legend=True
+        reverse_legend=True,
+        grouped_exercises=ordered_groups  # ← この行を追加
     )
 
 
@@ -339,9 +351,19 @@ def show_category_exercises(category_name):
         is_deleted=False
     ).order_by(Exercise.order).all()
 
+    # 各種目ごとのログを辞書形式で取得
+    # logs_by_exercise = {}
+    # for ex in exercises_in_category:
+    #     logs = ExerciseLog.query.filter_by(
+    #         exercise_id=ex.id
+    #     ).order_by(ExerciseLog.date.desc()).all()
+    #     logs_by_exercise[ex.id] = logs
+
+
     # カテゴリ名と取得した種目リストをテンプレートに渡す
     return render_template(
-        'category_detail.html',
+        # 'category_detail.html',
+        'category_exercises.html',
         category=category_name, # テンプレートにカテゴリ名を渡す
         exercises=exercises_in_category # テンプレートに種目リストを渡す
     )
@@ -349,8 +371,28 @@ def show_category_exercises(category_name):
 # ========================================
 # 週別の合計重量をグラフ表示
 # ========================================
+@app.route('/exercise-logs')
+def exercise_logs():
+    # 論理削除されていない種目のみ取得
+    exercises = Exercise.query.filter_by(is_deleted=False).order_by(Exercise.category, Exercise.order).all()
 
+    # 各種目ごとに記録を取得
+    exercise_logs = []
+    for ex in exercises:
+        logs = WorkoutLog.query.filter_by(exercise_id=ex.id).order_by(WorkoutLog.date.desc()).all()
+        if logs:
+            exercise_logs.append({
+                'exercise': ex,
+                'logs': logs
+            })
 
+    return render_template('exercise_logs.html', exercise_logs=exercise_logs)
+
+@app.route('/exercise/<int:exercise_id>/logs')
+def exercise_log_by_id(exercise_id):
+    exercise = Exercise.query.get_or_404(exercise_id)
+    logs = WorkoutLog.query.filter_by(exercise_id=exercise_id).order_by(WorkoutLog.date.desc()).all()
+    return render_template('exercise_log_by_id.html', exercise=exercise, logs=logs)
 
 
 # ========================================

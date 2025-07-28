@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category }} の種目一覧{% endblock %}
+
+{% block content %}
+<h2>{{ category }} の種目一覧</h2>
+
+{% if exercises %}
+  <ul>
+    {% for ex in exercises %}
+      <li>
+        <a href="{{ url_for('exercise_log_by_id', exercise_id=ex.id) }}">
+          {{ ex.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>この部位には登録された種目がありません。</p>
+{% endif %}
+
+<p><a href="{{ url_for('index') }}">← トップページに戻る</a></p>
+{% endblock %}

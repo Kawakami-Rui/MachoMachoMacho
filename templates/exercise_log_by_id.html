@@ -1,0 +1,23 @@
+{# templates/exercise_log_by_id.html #}
+{% extends 'base.html' %}
+
+{% block title %}{{ exercise.name }} の記録{% endblock %}
+
+{% block content %}
+<h2>{{ exercise.name }}（{{ exercise.category }}）の記録</h2>
+
+{% if logs %}
+    <ul>
+        {% for log in logs %}
+            <li>{{ log.date.strftime('%Y-%m-%d') }}：
+                {{ log.sets }}セット × {{ log.reps }}レップ × {{ log.weight }}kg
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>まだ記録がありません。</p>
+{% endif %}
+
+<p><a href="{{ url_for('exercise_logs') }}">← 種目一覧に戻る</a></p>
+<p><a href="{{ url_for('index') }}">← トップページへ</a></p>
+{% endblock %}

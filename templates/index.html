@@ -30,11 +30,18 @@
 </html>
 
 <p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
-<p><a href="{{ url_for('show_category_exercises', category_name='胸') }}">→ 胸</a></p>
-<p><a href="{{ url_for('show_category_exercises', category_name='肩') }}">→ 肩 </a></p>
-<p><a href="{{ url_for('show_category_exercises', category_name='腕') }}">→ 腕</a></p>
-<p><a href="{{ url_for('show_category_exercises', category_name='背中') }}">→ 背中</a></p>
-<p><a href="{{ url_for('show_category_exercises', category_name='腹筋') }}">→ 腹筋</a></p>
-<p><a href="{{ url_for('show_category_exercises', category_name='脚') }}">→ 脚</a></p>
+<p><a href="{{ url_for('exercise_logs') }}">→ 種目別記録一覧を見る</a></p>
+<h2>種目別記録ページ（個別リンク）</h2>
+
+<h2>部位別の記録ページ</h2>
+<ul>
+  {% for category in grouped_exercises.keys() %}
+    <li>
+      <a href="{{ url_for('show_category_exercises', category_name=category) }}">
+        ▶ {{ category }} の記録を見る
+      </a>
+    </li>
+  {% endfor %}
+</ul>
 
 {% endblock %}

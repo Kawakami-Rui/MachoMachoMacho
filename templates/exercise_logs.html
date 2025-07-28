@@ -1,0 +1,20 @@
+{# templates/exercise_logs.html #}
+{% extends 'base.html' %}
+
+{% block title %}種目別の記録一覧{% endblock %}
+
+{% block content %}
+<h2>種目ごとの記録ページ</h2>
+
+<ul>
+    {% for entry in exercise_logs %}
+        <li>
+            <a href="{{ url_for('exercise_log_by_id', exercise_id=entry.exercise.id) }}">
+                {{ entry.exercise.name }}（{{ entry.exercise.category }}）
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+
+<p><a href="{{ url_for('index') }}">← トップページに戻る</a></p>
+{% endblock %}
