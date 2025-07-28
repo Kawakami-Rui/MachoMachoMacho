@@ -40,6 +40,30 @@ class Exercise(db.Model):
     def mark_as_deleted(self):
         self.is_deleted = True
 
+        # 種目（エクササイズ）テーブルのモデル
+class Calisthenics(db.Model):
+    __tablename__ = 'calisthenics'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # ID
+    name = db.Column(db.String(200), nullable=False)                  # 種目名（例：ベンチプレス）
+    category = db.Column(db.String(100), nullable=False)              # カテゴリ（例：胸、脚）
+    detail = db.Column(db.String(200), nullable=True)                 # 補足説明（省略可能）
+    order = db.Column(db.Integer, nullable=True)                      # 表示順（並び替え用）
+    is_deleted = db.Column(db.Boolean, default=False, nullable=False)  # 論理削除フラグ
+    user_id = db.Column(db.Integer, db.ForeignKey('personal_info.id'), nullable=False)
+    exercise_id = db.Column(db.Integer, db.ForeignKey('exercises.id'), nullable=False)  # 種目ID（外部キー）
+    workout_logs_id = db.Column(db.Integer, db.ForeignKey('workout_logs.id'), nullable=False)  # 外部キー
+    
+    exercises = db.relationship('Exercise', backref='calisthenics_entries', lazy=True)
+
+    personal_info = db.relationship('PersonalInfo', backref='calisthenics_entries', lazy=True)
+    
+    def __str__(self):
+        return f'種目ID：{self.id} 種目名：{self.name} カテゴリ：{self.category} 詳細：{self.detail}'
+
+    def mark_as_deleted(self):
+        self.is_deleted = True
+
 
 
 

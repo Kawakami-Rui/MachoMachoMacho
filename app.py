@@ -8,8 +8,9 @@ from datetime import datetime, timedelta, date
 
 from forms import PersonalInfoForm, LoginForm
 from flask import session, flash
-from models import db, Exercise, WorkoutLog , PersonalInfo
+from models import db, Exercise, WorkoutLog , PersonalInfo ,Calisthenics
 
+from models import db
 # Flaskアプリケーションの初期化
 app = Flask(__name__)
 
@@ -35,6 +36,11 @@ migrate = Migrate(app, db)
 # ==================================================
 # 初期データ挿入
 # ==================================================
+
+with app.app_context():
+    db.create_all()
+
+
 def insert_initial_data():
     if Exercise.query.count() == 0:
         current_user_id = session.get("user_id")
@@ -57,7 +63,39 @@ def insert_initial_data():
         ]
         db.session.add_all(initial_exercises)
         db.session.commit()
+def insert_initial_dat_calis():
+    if Calisthenics.query.count() == 0:
+        current_user_id = session.get("user_id")
+        if not current_user_id:
+            return
 
+        # ここでWorkoutLogsの初期データを作成し、IDを取得
+        # 例として、ユーザーID 1 に紐づく最初のワークアウトログを作成
+        # 仮にWorkoutLogsモデルがあるとして
+        # from your_models_file import WorkoutLogs # WorkoutLogsモデルのインポートが必要
+        
+        # まずはダミーのworkout_log_idを割り当てるか、
+        # もし関連するWorkoutLogsエントリが事前に存在する場合
+        # そのIDを使用する必要があります。
+
+        # ここでは便宜的に仮のIDを割り当てていますが、
+        # 実際のアプリケーションでは、有効なWorkoutLogsレコードを作成し、
+        # そのidをここに設定する必要があります。
+        # 例: first_workout_log = WorkoutLogs(user_id=current_user_id, date=...)
+        # db.session.add(first_workout_log)
+        # db.session.commit()
+        # default_workout_log_id = first_workout_log.id
+        
+        # もし初めから関連付けが不要であれば、オプション2に進んでください。
+        default_workout_log_id = 1 # 仮のID。実際のDBの存在に合わせる必要があります。
+
+        initial_calis = [
+            Calisthenics(name='アームカール', category='腕', detail='上腕二頭筋', order=0, user_id=current_user_id, exercise_id=1, workout_logs_id=default_workout_log_id),
+            Calisthenics(name='トライセプスエクステンション', category='腕', detail='上腕三頭筋', order=1, user_id=current_user_id, exercise_id=2, workout_logs_id=default_workout_log_id),
+            Calisthenics(name='ベンチプレス', category='胸', detail='大胸筋', order=0, user_id=current_user_id, exercise_id=3, workout_logs_id=default_workout_log_id),
+        ]
+        db.session.add_all(initial_calis)
+        db.session.commit()
 # ================================================
 # WorkoutLogのサンプルデータ挿入
 # ================================================
@@ -161,6 +199,8 @@ def index():
 
     insert_initial_data()
     insert_sample_data()
+    insert_initial_dat_calis()
+    
     return redirect_to_today()  # ログイン済みならカレンダー表示へ
 
 def redirect_to_today():
@@ -408,5 +448,6 @@ def start():
 # ========================================
 # 実行
 # ========================================
+
 if __name__ == '__main__':
     app.run(port=5001, debug=True)
