@@ -403,6 +403,49 @@ def start():
 # ========================================
 
 
+# ========================================
+# 筋肉部位ごとの直近1週間の合計重量を返すAPI
+# ========================================
+@app.route('/api/muscle-status')
+def get_muscle_status():
+    current_user_id = session.get("user_id")
+    if not current_user_id:
+        return jsonify({})  # 未ログインなら空データ
+
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=6)
+
+    # カテゴリ別の合計重量を集計
+    results = (
+        db.session.query(
+            Exercise.category,
+            func.sum(WorkoutLog.sets * WorkoutLog.reps * WorkoutLog.weight).label("total_weight")
+        )
+        .select_from(WorkoutLog)
+        .join(Exercise, WorkoutLog.exercise_id == Exercise.id)
+        .filter(WorkoutLog.date.between(start_date, end_date))
+        .filter(WorkoutLog.user_id == current_user_id)
+        .group_by(Exercise.category)
+        .all()
+    )
+
+    # カテゴリIDと紐づけ（SVG側と一致させる）
+    category_id_map = {
+        "胸": "chest",
+        "肩": "shoulder",
+        "腕": "arm",
+        "背中": "back",
+        "腹筋": "abs",
+        "脚": "leg"
+    }
+
+    status = {}
+    for category, total_weight in results:
+        svg_id = category_id_map.get(category)
+        if svg_id:
+            status[svg_id] = total_weight
+
+    return jsonify(status)
 
 
 # ========================================

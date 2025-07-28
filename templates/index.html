@@ -32,8 +32,62 @@
 </body>
 </html>
 
+<h2>筋肉図</h2>
+<!-- 筋肉図SVGを表示 -->
+<div id="muscle-map" style="width: 100%; max-width: 800px; margin: auto;">
+    <object id="muscleSvg" data="{{ url_for('static', filename='images/machodols.svg') }}" type="image/svg+xml" style="width: 100%; height: auto;"></object>
+</div>
+
+<!-- 筋肉部位ごとの色を反映するスクリプト（スコアによるグラデーション） -->
+<script>
+const svgObject = document.getElementById("muscleSvg");
+
+svgObject.addEventListener("load", () => {
+  const svgDoc = svgObject.contentDocument;
+  if (!svgDoc) {
+    console.error("SVGの contentDocument を取得できません");
+    return;
+  }
+
+  // テスト用に任意のスコアを用意（例：部位ごとの合計重量）
+  const scores = {
+    chest: 0,
+    arm: 20,
+    shoulder: 50,
+    abs: 80,
+    leg: 90,
+    back: 100
+  };
+
+  // スコアに応じて(190,190,190)→(255,30,30)のグラデーション
+  function scoreToColor(score) {
+    const ratio = Math.min(score / 100, 1);
+
+    const r = Math.floor(190 + (255 - 190) * ratio);
+    const g = Math.floor(190 - (190 - 30) * ratio);
+    const b = Math.floor(190 - (190 - 30) * ratio);
+
+
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  Object.entries(scores).forEach(([id, score]) => {
+    const group = svgDoc.getElementById(id);
+    if (group) {
+      const elements = group.querySelectorAll("path, polygon, ellipse, rect, circle");
+      const color = scoreToColor(score);
+      elements.forEach(elem => {
+        elem.setAttribute("style", `fill: ${color} !important`);
+      });
+    }
+  });
+});
+</script>
+
 <p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
-<p><a href="{{ url_for('user_info', user_id=session.get('user_id')) }}">→ ユーザー情報</a></p>
+{% if session['user_id'] %}
+  <p><a href="{{ url_for('user_info', user_id=session['user_id']) }}">→ ユーザー情報</a></p>
+{% endif %}
 
 <p>Flaskでチーム開発</p>
 
