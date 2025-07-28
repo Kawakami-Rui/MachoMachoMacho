@@ -1,10 +1,54 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>スタートページ</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>ようこそ MachoMachoMacho へ！</h1>
 
-{% block title %}ようこそ{% endblock %}
+    <!-- 切り替えボタン -->
+    <button onclick="showLogin()">ログイン</button>
+    <button onclick="showRegister()">新規登録</button>
 
-{% block content %}
-  <h2>ようこそ MachoMachoMacho へ！</h2>
-  <p>ログインまたは新規登録してください。</p>
-  <a href="{{ url_for('login') }}">ログイン</a> |
-  <a href="{{ url_for('form') }}">新規登録</a>
-{% endblock %}
+    <!-- ログインフォーム -->
+    <div id="login-form" class="hidden">
+        <form method="POST" action="{{ url_for('login') }}">
+            <label>メール: <input type="email" name="email" required></label><br>
+            <label>パスワード: <input type="password" name="password" required></label><br>
+            <button type="submit">ログイン</button>
+        </form>
+    </div>
+
+    <!-- 新規登録フォーム -->
+    <div id="register-form" class="hidden">
+        <form method="POST" action="{{ url_for('form') }}">
+            <label>名前: <input type="text" name="username" required></label><br>
+            <label>メール: <input type="email" name="email" required></label><br>
+            <label>パスワード: <input type="password" name="password" required></label><br>
+            <label>身長(cm): <input type="number" name="height" required></label><br>
+            <label>体重(kg): <input type="number" name="weight" required></label><br>
+            <button type="submit">登録</button>
+        </form>
+    </div>
+
+    <!-- JSで表示切り替え -->
+    <script>
+        function showLogin() {
+            document.getElementById("login-form").classList.remove("hidden");
+            document.getElementById("register-form").classList.add("hidden");
+        }
+
+        function showRegister() {
+            document.getElementById("register-form").classList.remove("hidden");
+            document.getElementById("login-form").classList.add("hidden");
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/start.css') }}"> 
+</body>
+</html>
