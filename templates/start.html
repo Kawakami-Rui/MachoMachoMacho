@@ -16,26 +16,34 @@
     <button onclick="showLogin()">ログイン</button>
     <button onclick="showRegister()">新規登録</button>
 
-    <!-- ログインフォーム -->
-    <div id="login-form" class="hidden">
-        <form method="POST" action="{{ url_for('login') }}">
-            <label>メール: <input type="email" name="email" required></label><br>
-            <label>パスワード: <input type="password" name="password" required></label><br>
-            <button type="submit">ログイン</button>
-        </form>
-    </div>
+<!-- ログインフォーム -->
+<div id="login-form" class="hidden">
+    <form method="POST" action="{{ url_for('login') }}">
+        {{ login_form.hidden_tag() }}
+        {{ login_form.email.label }} {{ login_form.email() }}<br>
+        {{ login_form.password.label }} {{ login_form.password() }}<br>
+        <button type="submit">ログイン</button>
+    </form>
+</div>
 
-    <!-- 新規登録フォーム -->
-    <div id="register-form" class="hidden">
-        <form method="POST" action="{{ url_for('form') }}">
-            <label>名前: <input type="text" name="username" required></label><br>
-            <label>メール: <input type="email" name="email" required></label><br>
-            <label>パスワード: <input type="password" name="password" required></label><br>
-            <label>身長(cm): <input type="number" name="height" required></label><br>
-            <label>体重(kg): <input type="number" name="weight" required></label><br>
-            <button type="submit">登録</button>
-        </form>
-    </div>
+
+<!-- 新規登録フォーム -->
+<div id="register-form" class="hidden">
+    <form method="POST" action="{{ url_for('form') }}">
+        {{ register_form.hidden_tag() }}
+        
+        <label>{{ register_form.username.label }}</label> {{ register_form.username() }}<br>
+        <label>{{ register_form.email.label }}</label> {{ register_form.email() }}<br>
+        <label>{{ register_form.password.label }}</label> {{ register_form.password() }}<br>
+        <label>{{ register_form.confirm_password.label }}</label> {{ register_form.confirm_password() }}<br>
+        <label>{{ register_form.height.label }}</label> {{ register_form.height() }}<br>
+        <label>{{ register_form.weight.label }}</label> {{ register_form.weight() }}<br>
+        
+        <button type="submit">登録</button>
+    </form>
+</div>
+
+
 
     <!-- JSで表示切り替え -->
     <script>
