@@ -373,7 +373,7 @@ def login():
         if user and user.password == form.password.data:
             session['user_id'] = user.id
             flash('ログイン成功', 'success')
-            return redirect(url_for('mypage', user_id=user.id))
+            return redirect(url_for('index', user_id=user.id))
         else:
             flash('ユーザー名またはパスワードが間違っています', 'danger')
     return render_template('login.html', form=form)
