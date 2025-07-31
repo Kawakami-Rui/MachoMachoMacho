@@ -77,6 +77,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             return `${dataset.label}: ${value}`;
                         }
                     }
+                },
+                datalabels: {
+                    display: false // データラベルは非表示
                 }
             },
             scales: {

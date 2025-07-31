@@ -404,16 +404,16 @@ def start():
 # ========================================
 # 週別のトレーニング記録を表示（グラフ、割合）
 # ========================================
-# 今週のグラフへリダイレクト
+# 週の範囲を指定して記録を表示（例: /chart）
 @app.route('/chart')
 def weekly_data():
     today = datetime.now().date()
     sunday = today - timedelta(days=(today.weekday() + 1) % 7)  # 日曜始まり
-    return redirect(url_for('chart_week_range', week_range=f"{sunday.strftime('%Y-%m-%d')}~{(sunday + timedelta(days=6)).strftime('%Y-%m-%d')}"))
+    return redirect(url_for('weekly_report', week_range=f"{sunday.strftime('%Y-%m-%d')}~{(sunday + timedelta(days=6)).strftime('%Y-%m-%d')}"))
 
 # 週の範囲を指定してグラフ表示（例: /chart/week/2025-07-27~2025-08-02）
-@app.route('/chart/<week_range>')
-def chart_week_range(week_range):
+@app.route('/weekly_report/<week_range>')
+def weekly_report(week_range):
     try:
         # '2025-07-27~2025-08-02' 形式でパース
         start_str, end_str = week_range.split('~')
@@ -424,6 +424,22 @@ def chart_week_range(week_range):
 
     labels, datasets, category_map = get_chart_data(start_date, end_date)
 
+    # カテゴリ別の合計重量を計算
+    from collections import defaultdict
+    category_totals = defaultdict(float)
+    category_exercise_ratios = defaultdict(lambda: defaultdict(float))
+    for dataset in datasets:
+        exercise = dataset['label']
+        category = category_map.get(exercise, 'その他')
+        for value in dataset['data']:
+            category_totals[category] += value
+            category_exercise_ratios[category][exercise] += value
+
+    # 表示順をカテゴリ順で固定
+    category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
+    ordered_category_totals = {cat: category_totals[cat] for cat in category_order if cat in category_totals}
+    ordered_category_ratios = {cat: category_exercise_ratios[cat] for cat in category_order if cat in category_exercise_ratios}
+
     # 前週・次週のURL作成
     prev_start = (start_date - timedelta(weeks=1)).strftime('%Y-%m-%d')
     prev_end = (end_date - timedelta(weeks=1)).strftime('%Y-%m-%d')
@@ -433,17 +449,19 @@ def chart_week_range(week_range):
     today = datetime.now().date()
     next_url = None
     if next_start_date <= today:
-        next_url = url_for('chart_week_range', week_range=f"{next_start_date.strftime('%Y-%m-%d')}~{next_end_date.strftime('%Y-%m-%d')}")
+        next_url = url_for('weekly_report', week_range=f"{next_start_date.strftime('%Y-%m-%d')}~{next_end_date.strftime('%Y-%m-%d')}")
 
     return render_template(
-        'training_weekly_data.html',
+        'weekly_report.html',
         labels=labels,
         datasets=datasets,
         category_map=category_map,
         reverse_legend=True,
         week_range=f"{start_date.strftime('%Y/%m/%d')}〜{end_date.strftime('%Y/%m/%d')}",
-        prev_url=url_for('chart_week_range', week_range=f"{prev_start}~{prev_end}"),
-        next_url=next_url
+        prev_url=url_for('weekly_report', week_range=f"{prev_start}~{prev_end}"),
+        next_url=next_url,
+        category_totals=ordered_category_totals,
+        category_exercise_ratios=ordered_category_ratios
     )
 
 # ========================================

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}週別グラフ表示{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- 週別グラフ表示用のCSSファイルを読み込み -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/weekly_report.css') }}">
+{% endblock %}
+
+{% block content %}
+<h2 class="report-title">{{ week_range }} の記録</h2>
+<p class="week-nav">
+  <a href="{{ prev_url }}">前の週</a>
+  {% if next_url %}
+    <a href="{{ next_url }}">次の週</a>
+  {% else %}
+    <span style="color: gray;">次の週</span>
+  {% endif %}
+</p>
+
+<canvas id="stackedChart" class="stacked-chart" width="600" height="300"></canvas>
+
+<script id="chart-data" type="application/json">
+  {
+    "labels": {{ labels | tojson | safe }},
+    "datasets": {{ datasets | tojson | safe }},
+    "category_map": {{ category_map | tojson | safe }},
+    "reverse_legend": true
+  }
+</script>
+
+
+<h2 class="section-title">カテゴリ別・種目別の合計重量</h2>
+<div class="report-flex">
+  <div class="category-breakdown">
+{% for cat in ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他'] %}
+  {% set ratios = category_exercise_ratios.get(cat) %}
+  {% if ratios %}
+    <h3>{{ cat }}</h3>
+    <ul>
+      {% for name, percent in ratios.items() %}
+        <li>{{ name }}：{{ percent|round(1) }}kg</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endfor %}
+  </div>
+  <div class="category-pie">
+    <canvas id="categoryPieChart" width="400" height="400"></canvas>
+  </div>
+</div>
+
+<script id="category-pie-data" type="application/json">
+  {{ category_totals | tojson | safe }}
+</script>
+
+<!-- chart.jsのスクリプトを読み込み -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="{{ url_for('static', filename='js/category_pie_chart.js') }}"></script>
+<script src="{{ url_for('static', filename='js/stacked_chart.js') }}"></script>
+
+
+
+<!-- トップページへのリンク -->
+<p class="back-to-index"><a href="{{ url_for('index') }}">← トップメニューへ戻る</a></p>
+
+{% endblock %}

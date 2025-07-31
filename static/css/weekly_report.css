@@ -1,0 +1,132 @@
+.category-breakdown {
+  margin-top: 2em;
+  padding: 1em 1.5em;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+  font-family: "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+}
+
+.category-breakdown h3 {
+  margin-top: 1.2em;
+  font-size: 1.1em;
+  color: #333;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 0.4em;
+  font-weight: bold;
+}
+
+.category-breakdown ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.8em 0 1.2em 0;
+}
+
+.category-breakdown li {
+  margin: 0.4em 0;
+  padding: 0.4em 0.8em;
+  background-color: #f7faff;
+  font-size: 0.95em;
+  color: #333;
+  border-radius: 4px;
+}
+
+.report-flex {
+  display: flex;
+  gap: 40px;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.category-breakdown {
+  flex: 1 1 300px;
+  min-width: 250px;
+}
+
+.category-pie {
+  flex: 1 1 400px;
+  min-width: 300px;
+  max-width: 600px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: flex-end;
+}
+
+canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+/* 全体タイトル */
+.report-title {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  color: #2c3e50;
+  text-align: center;
+}
+
+/* 週移動リンク */
+.week-nav {
+  display: flex;
+  justify-content: center;
+  gap: 5em;
+  margin-bottom: 1.5em;
+}
+
+.week-nav a,
+.week-nav span {
+  font-size: 1.2em;
+  padding: 0.5em 1em;
+}
+.week-nav a {
+  color: #fff;
+  background-color: #33bbf5;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  height: 20px; /* Adjust height as needed */
+  line-height: 20px; /* Align text vertically */
+  display: inline-block;
+}
+.week-nav span {
+  background-color: #eee;
+  color: #aaa;
+  border-radius: 6px;
+  padding: 0.3em 1em;
+  font-weight: bold;
+  height: 20px;
+  line-height: 20px;
+  display: inline-block;
+}
+.week-nav a:hover {
+  background-color: #1184e8;
+}
+
+/* セクション見出し */
+.section-title {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #34495e;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  border-bottom: 2px solid #ecf0f1;
+  padding-bottom: 0.3em;
+}
+
+/* トップページリンク */
+.back-to-index {
+  text-align: center;
+  margin-top: 3em;
+}
+
+.back-to-index a {
+  color: #2ecc71;
+  font-weight: bold;
+  text-decoration: none;
+}
