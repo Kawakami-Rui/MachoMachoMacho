@@ -1,106 +1,70 @@
-/* 全体の背景と基本フォント */
+/* 全体背景とフォント */
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(to right, #74ebd5, #acb6e5);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f8fa;
     margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column; /* ←縦方向に配置 */
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    padding: 20px;
 }
 
-/* コンテナのスタイル */
-.container {
+/* コンテナ全体 */
+.container, .container2 {
     background-color: #fff;
-    padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 500px;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-/* タイトル */
-.container h1 {
-    text-align: center;
-    margin-bottom: 1.5rem;
+/* 見出し */
+h1 {
     color: #333;
+    margin-bottom: 15px;
 }
 
-/* ボタンのグループ */
-.button-group {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 2rem;
+/* テキストボックス */
+.textbox {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 15px;
+    border: 1.5px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
 }
 
-.button-group button {
-    padding: 0.8rem 1.5rem;
-    border: none;
-    border-radius: 2rem;
-    background-color: #54a0ff;
+.textbox:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+/* チェックボックスとラベルの間 */
+.margin {
+    margin-top: 10px;
+}
+
+/* ボタン */
+.button {
+    width: 100%;
+    padding: 10px 0;
+    background-color: #4a90e2;
     color: white;
-    cursor: pointer;
+    font-size: 16px;
     font-weight: bold;
-    transition: background-color 0.3s ease;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-.button-group button:hover {
-    background-color: #2e86de;
+.button:hover {
+    background-color: #357ABD;
 }
 
-/* フォーム */
-.form-wrapper {
-    display: none;
-}
-
-.form-wrapper.active {
-    display: block;
-}
-
-/* 各フォーム内の入力とラベル */
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-form label {
-    margin: 0.5rem 0 0.2rem;
+/* アカウント情報のpタグ */
+.container2 p {
+    font-size: 15px;
     color: #555;
-}
-
-form input {
-    padding: 0.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid #ccc;
-}
-
-form button {
-    margin-top: 1rem;
-    padding: 0.8rem;
-    background-color: #10ac84;
-    color: white;
-    border: none;
-    border-radius: 2rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-form button:hover {
-    background-color: #079992;
-}
-
-button {
-    padding: 12px 24px;
-    background-color: #4f46e5; /* インディゴ色 */
-    color: white;
-    border: none;
-    border-radius: 9999px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    margin: 6px 0;
 }

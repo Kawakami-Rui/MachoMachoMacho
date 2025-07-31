@@ -2,58 +2,25 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>スタートページ</title>
-    <style>
-        .hidden {
-            display: none;
-        }
-    </style>
+    <title>ログイン-google</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>ようこそ MachoMachoMacho へ！</h1>
+    <center>
+        <div class="container">
+            <h1>ログイン</h1>
+            <p>作業を続けるには、ログインしてください。</p>
 
-    <!-- 切り替えボタン -->
-    <button onclick="showLogin()">ログイン</button>
-    <button onclick="showRegister()">新規登録</button>
+            <form method="POST">
+              {{ login_form.hidden_tag() }}
+              {{ login_form.email.label }} {{ login_form.email() }}<br>
+              {{ login_form.password.label }} {{ login_form.password() }}<br>
+              {{ login_form.submit() }}
+            </form>
 
-<!-- ログインフォーム -->
-<div id="login-form" class="hidden">
-    <form method="POST" action="{{ url_for('login') }}">
-        {{ login_form.hidden_tag() }}
-        {{ login_form.email.label }} {{ login_form.email() }}<br>
-        {{ login_form.password.label }} {{ login_form.password() }}<br>
-        <button type="submit">ログイン</button>
-    </form>
-</div>
-
-<!-- 新規登録フォーム -->
-<div id="register-form" class="hidden">
-    <form method="POST" action="{{ url_for('form') }}">
-        {{ register_form.hidden_tag() }}
-        
-        <label>{{ register_form.username.label }}</label> {{ register_form.username() }}<br>
-        <label>{{ register_form.email.label }}</label> {{ register_form.email() }}<br>
-        <label>{{ register_form.password.label }}</label> {{ register_form.password() }}<br>
-        <label>{{ register_form.confirm_password.label }}</label> {{ register_form.confirm_password() }}<br>
-        <label>{{ register_form.height.label }}</label> {{ register_form.height() }}<br>
-        <label>{{ register_form.weight.label }}</label> {{ register_form.weight() }}<br>
-        
-        <button type="submit">登録</button>
-    </form>
-</div>
-
-    <!-- JSで表示切り替え -->
-    <script>
-        function showLogin() {
-            document.getElementById("login-form").classList.remove("hidden");
-            document.getElementById("register-form").classList.add("hidden");
-        }
-
-        function showRegister() {
-            document.getElementById("register-form").classList.remove("hidden");
-            document.getElementById("login-form").classList.add("hidden");
-        }
-    </script>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/start.css') }}"> 
+            <!-- 新規登録へのリンク -->
+            <p>初めての方は <a href="{{ url_for('form') }}">こちらから登録</a></p>
+        </div>
+    </center>
 </body>
 </html>

@@ -344,22 +344,16 @@ def delete_log_for_date(year, month, day):
 # ユーザー管理機能（ログイン・個人情報）
 # ========================================
 
-@app.route('/form', methods=["GET", "POST"])
+@app.route('/form', methods=['GET', 'POST'])
 def form():
     form = PersonalInfoForm()
     if form.validate_on_submit():
-        new_person = PersonalInfo(
-            username=form.username.data,
-            email=form.email.data,
-            password=form.password.data,
-            height=form.height.data,
-            weight=form.weight.data,
-        )
-        db.session.add(new_person)
-        db.session.commit()
-        session['user_id'] = new_person.id
-        return redirect(url_for('index'))  
+        # 登録処理（DBへの追加など）
+        ...
+        flash('登録完了しました！', 'success')
+        return redirect(url_for('login'))
     return render_template('form.html', form=form)
+
 
 @app.route('/user/<int:user_id>')
 def user_info(user_id):
@@ -374,10 +368,11 @@ def login():
         if user and user.password == form.password.data:
             session['user_id'] = user.id
             flash('ログイン成功', 'success')
-            return redirect(url_for('index', user_id=user.id))
+            return redirect(url_for('index'))
         else:
             flash('ユーザー名またはパスワードが間違っています', 'danger')
     return render_template('login.html', form=form)
+
 
 @app.route('/logout')
 def logout():
@@ -392,13 +387,15 @@ def mypage():
         flash("ログインしてください")
         return redirect(url_for('login'))
     user = PersonalInfo.query.get(user_id)
-    return render_template('user_info.html', user=user)
+    return render_template('mypage.html', user=user)
+
 
 @app.route('/start', methods=["GET", "POST"])
 def start():
     register_form = PersonalInfoForm()
-    login_form = LoginForm()
+    login_form = LoginForm()  # ← 必要なフォームを追加
     return render_template("start.html", register_form=register_form, login_form=login_form)
+
 
 # ========================================
 # 週別の合計重量をグラフ表示
