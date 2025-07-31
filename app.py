@@ -161,7 +161,7 @@ def index():
 
     insert_initial_data()
     insert_sample_data()
-    return redirect_to_today()  # ログイン済みならカレンダー表示へ
+    return redirect_to_today()  # ログイン済みならトップページへ
 
 def redirect_to_today():
     """現在の日付を取得して、/年/月 にリダイレクト"""
