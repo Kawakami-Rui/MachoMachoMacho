@@ -55,11 +55,6 @@
 {% else %}
   <p class="no-data-message">まだ記録がありません</p>
 {% endif %}
-  </div>
-  <div class="category-pie">
-    <canvas id="categoryPieChart" width="400" height="400"></canvas>
-  </div>
-</div>
 
 <script id="category-pie-data" type="application/json">
   {{ category_totals | tojson | safe }}

@@ -1,0 +1,81 @@
+<h2>筋肉図</h2>
+<!-- 筋肉図SVGを表示 -->
+<div id="muscle-map" style="width: 100%; max-width: 800px; margin: auto; position: relative;">
+    <div style="position: relative;">
+        <object id="muscleSvg" data="{{ url_for('static', filename='images/machodols.svg') }}" type="image/svg+xml" style="width: 100%; height: auto;"></object>
+        <div id="hover-label" style="position: absolute; background: rgba(177, 177, 177, 0.701); color: #fff; padding: 8px 12px; border-radius: 8px;
+             font-size: 1em; display: none; pointer-events: none; z-index: 10;"></div>
+    </div>
+</div>
+
+<!-- 筋肉部位ごとの色を反映するスクリプト（スコアによるグラデーション） -->
+<script>
+    const svgObject = document.getElementById("muscleSvg");
+
+    svgObject.addEventListener("load", () => {
+        const svgDoc = svgObject.contentDocument;
+        if (!svgDoc) {
+            console.error("SVGの contentDocument を取得できません");
+            return;
+        }
+
+        // テスト用に任意のスコアを用意（例：部位ごとの合計重量）
+        const scores = {
+            chest: 0,
+            arm: 20,
+            shoulder: 50,
+            abs: 80,
+            leg: 90,
+            back: 100
+        };
+
+        // スコアに応じて(190,190,190)→(255,30,30)のグラデーション
+        function scoreToColor(score) {
+            const ratio = Math.min(score / 100, 1);
+
+            const r = Math.floor(190 + (255 - 190) * ratio);
+            const g = Math.floor(190 - (190 - 30) * ratio);
+            const b = Math.floor(190 - (190 - 30) * ratio);
+
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        Object.entries(scores).forEach(([id, score]) => {
+            const group = svgDoc.getElementById(id);
+            if (group) {
+
+                const link = document.createElementNS("http://www.w3.org/2000/svg", "a");
+                link.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", `/category/${id}`);
+                link.setAttribute("target", "_top");
+                group.parentNode.insertBefore(link, group);
+                link.appendChild(group);
+
+                const elements = group.querySelectorAll("path, polygon, ellipse, rect, circle");
+                const color = scoreToColor(score);
+                elements.forEach(elem => {
+                    elem.setAttribute("style", `fill: ${color} !important`);
+                });
+            }
+        });
+
+        const label = document.getElementById("hover-label");
+        Object.entries(scores).forEach(([id, score]) => {
+            const group = svgDoc.getElementById(id);
+            if (group) {
+                group.addEventListener("mouseenter", (event) => {
+                    label.textContent = `→ ${id}`;
+                    label.style.display = "block";
+                    label.style.left = event.clientX + 10 + "px";
+                    label.style.top = event.clientY - 30 + "px";
+                });
+                group.addEventListener("mousemove", (event) => {
+                    label.style.left = event.clientX + 10 + "px";
+                    label.style.top = event.clientY - 30 + "px";
+                });
+                group.addEventListener("mouseleave", () => {
+                    label.style.display = "none";
+                });
+            }
+        });
+    });
+</script>

@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ category_jp }}の詳細ページ</h2>
+<div class="category-exercises-container">
+
+<!-- 種目リストのヘッダー行 -->
+<div class="exercise-header">
+    <div class="col name">種目名</div>
+    <div class="col detail">詳細な筋肉部位</div>
+</div>
+
+{% if exercises %}
+    <div class="exercise-list">
+        {% for exercise in exercises %}
+            <div class="exercise-row">
+                <div class="col name">{{ exercise.name }}</div>
+                <div class="col detail">{{ exercise.detail }}</div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>このカテゴリには種目が登録されていません。</p>
+{% endif %}
+
+<div class="category-graph-container">
+    <h3>直近30日間のトレーニング推移</h3>
+    <canvas id="categoryChart" width="600" height="300"></canvas>
+    <script id="chart-data" type="application/json">
+        {
+            "labels": {{ labels | tojson | safe }},
+            "values": {{ values | tojson | safe }}
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const rawData = document.getElementById('chart-data').textContent;
+        const parsedData = JSON.parse(rawData);
+        const ctx = document.getElementById('categoryChart').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: parsedData.labels,
+                datasets: [{
+                    label: '合計重量 (kg)',
+                    data: parsedData.values,
+                    backgroundColor: '#34495e',
+                    borderColor: '#34495e',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'kg'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            maxRotation: 90,
+                            minRotation: 45,
+                            callback: function(value, index) {
+                                return index % 5 === 0 ? this.getLabelForValue(value) : '';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</div>
+
+<a href="{{ url_for('index') }}">← 戻る</a>
+</div> <!-- end of .category-exercises-container -->
+{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- カテゴリ別種目表示用のCSSファイルを読み込み -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/category_exercises.css') }}">
+{% endblock %}

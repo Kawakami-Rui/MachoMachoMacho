@@ -1,0 +1,37 @@
+
+
+
+.category-exercises-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    font-family: sans-serif;
+    color: #2c3e50;
+}
+
+.exercise-header,
+.exercise-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #ccc;
+    align-items: center;
+}
+
+.exercise-header {
+    background-color: #f5f6f7;
+    font-weight: bold;
+    font-size: 1.1em;
+    border-top: 1px solid #ccc;
+}
+
+.col.name,
+.col.detail {
+    flex: 1;
+    text-align: left;
+}
+
+.col.part {
+    flex: 0 0 150px;
+    text-align: left;
+}

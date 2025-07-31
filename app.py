@@ -96,6 +96,17 @@ def get_grouped_exercises():
     return ordered_groups
 
 # ==================================================
+# 指定カテゴリの種目一覧取得関数
+# ==================================================
+def get_exercises_by_category(category_name):
+    """指定したカテゴリに属する種目一覧を取得"""
+    exercises = Exercise.query.filter_by(
+        category=category_name,
+        is_deleted=False
+    ).order_by(Exercise.order).all()
+    return exercises
+
+# ==================================================
 # グラフデータ取得関数
 # ==================================================
 def get_chart_data(start_date, end_date):
@@ -206,6 +217,8 @@ def top_page(year, month):
 
     labels, datasets, category_map = get_chart_data(start_date, end_date)
 
+    ordered_groups = get_grouped_exercises()
+
     return render_template(
         'index.html',
         labels=labels,
@@ -219,8 +232,67 @@ def top_page(year, month):
         prev_year=prev_year,
         prev_month=prev_month,
         next_year=next_year,
-        next_month=next_month
+        next_month=next_month,
+        grouped_exercises=ordered_groups
     )
+
+# ========================================
+# 特定のカテゴリ（部位）の種目を表示するページ
+# ========================================
+@app.route('/category/<category_name>')
+def show_category_exercises(category_name):
+    current_user_id = session.get("user_id")
+
+    # 英語 → 日本語カテゴリ変換マップ
+    category_map = {
+        'chest': '胸',
+        'shoulder': '肩',
+        'arm': '腕',
+        'back': '背中',
+        'abs': '腹筋',
+        'leg': '脚',
+        'other': 'その他'
+    }
+
+    jp_category = category_map.get(category_name)
+    if not jp_category:
+        return "カテゴリが見つかりません", 404
+
+    exercises_in_category = Exercise.query.filter_by(
+        category=jp_category,
+        is_deleted=False,
+        user_id=current_user_id
+    ).order_by(Exercise.order).all()
+
+    # Chart.js用のデータを取得（過去30日分）
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=29)
+
+    results = db.session.query(
+        WorkoutLog.date,
+        func.sum(WorkoutLog.sets * WorkoutLog.reps * WorkoutLog.weight).label('total_weight')
+    ).join(Exercise).filter(
+        WorkoutLog.date.between(start_date, end_date),
+        Exercise.category == jp_category,
+        WorkoutLog.user_id == current_user_id
+    ).group_by(WorkoutLog.date).order_by(WorkoutLog.date).all()
+
+    labels = []
+    values = []
+    for single_date in (start_date + timedelta(n) for n in range(30)):
+        labels.append(single_date.strftime('%Y-%m-%d'))
+        matching = next((total for d, total in results if d == single_date), 0)
+        values.append(matching if matching else 0)
+
+    return render_template(
+        'category_exercises.html',
+        category_en=category_name,
+        category_jp=jp_category,
+        exercises=exercises_in_category,
+        labels=labels,
+        values=values
+    )
+
 
 
 # ========================================
@@ -346,7 +418,6 @@ def delete_log_for_date(year, month, day):
 # ========================================
 # ユーザー管理機能（ログイン・個人情報）
 # ========================================
-
 @app.route('/form', methods=['GET', 'POST'])
 def form_page():
     form = PersonalInfoForm()
