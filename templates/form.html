@@ -10,7 +10,7 @@
 
 {% block content %}
   <h1>個人情報、パスワードを入力保存してください</h1>
-  <form action="{{ url_for('form') }}" method="post" class="formssss">
+  <form action="{{ url_for('form_page') }}" method="post" class="formssss">
     {{ form.hidden_tag() }}
 
     <p>{{ form.username.label }}<br>{{ form.username() }}</p>

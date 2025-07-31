@@ -6,15 +6,18 @@
 </head>
 <body>
 
-    <h1>ようこそーーー MachoMachoMacho へ！</h1>
+    <h1>ログイン</h1>
+    <p>作業を続けるには、ログインしてください。</p>
 
 <!-- ログインフォーム -->
     <form method="POST" action="{{ url_for('login') }}">
-      
+
         {{ login_form.hidden_tag() }}
         {{ login_form.email.label }} {{ login_form.email() }}<br>
         {{ login_form.password.label }} {{ login_form.password() }}<br>
         <button type="submit">ログイン</button>
+        <a href="{{ url_for('form_page') }}" class="back">← 前月</a>
+
     </form>
 
 

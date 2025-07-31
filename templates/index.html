@@ -33,7 +33,12 @@
 </html>
 
 <p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
-<p><a href="{{ url_for('user_info', user_id=session.get('user_id')) }}">→ ユーザー情報</a></p>
+{% if session.get('user_id') %}
+    <p><a href="{{ url_for('user_info', user_id=session.get('user_id')) }}">→ ユーザー情報</a></p>
+{% else %}
+    <p>ログインしてください</p>
+{% endif %}
+
 
 <p>Flaskでチーム開発</p>
 
