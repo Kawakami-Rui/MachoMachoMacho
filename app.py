@@ -357,8 +357,10 @@ def form():
         )
         db.session.add(new_person)
         db.session.commit()
-        return redirect(url_for("user_info", user_id=new_person.id))
-    return render_template("form.html", form=form)
+        session['user_id'] = new_person.id
+        return redirect(url_for('index'))
+    else:
+        return render_template("start.html", register_form=form, login_form=LoginForm())
 
 @app.route('/user/<int:user_id>')
 def user_info(user_id):
@@ -399,14 +401,9 @@ def start():
     login_form = LoginForm()
     return render_template("start.html", register_form=register_form, login_form=login_form)
 
-
-
 # ========================================
 # 週別の合計重量をグラフ表示
 # ========================================
-
-
-
 
 # ========================================
 # 実行
