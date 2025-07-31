@@ -1,45 +1,91 @@
-form {
-    color: #333;
-    background-color: #ffffff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    margin: 2rem auto;
+/* 背景と全体レイアウト */
+body {
     font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #ee3c25, #c9b8da);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
 }
 
-/* ラベルや入力欄の整列 */
-form p {
-    margin-bottom: 1.2rem;
+/* 白い枠（フォームカード） */
+.formssss {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 350px;
 }
 
-/* 入力欄のスタイル */
-form input[type="text"],
-form input[type="password"],
-form input[type="email"] {
+/* タイトル */
+h1 {
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: #333;
+    text-align: center;
+}
+
+/* サブタイトル */
+p:first-of-type {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* ラベルと入力欄 */
+.formssss p {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.formssss input[type="text"],
+.formssss input[type="email"],
+.formssss input[type="password"],
+.formssss input[type="number"] {
     width: 100%;
-    padding: 0.6rem;
-    font-size: 1rem;
+    padding: 8px 10px;
     border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 8px;
     box-sizing: border-box;
 }
 
-/* 送信ボタンのスタイル */
-form input[type="submit"], 
-form button {
-    background-color: #33bbf5;
-    color: #fff;
-    padding: 0.6rem 1.2rem;
+/* 送信ボタン */
+.formssss input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #00796b;
+    color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
+    font-weight: bold;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s;
 }
 
-form input[type="submit"]:hover,
-form button:hover {
-    background-color: #1aa9e2;
+.formssss input[type="submit"]:hover {
+    background-color: #004d40;
+}
+
+/* ログインリンク */
+a {
+    display: block;
+    margin-top: 15px;
+    text-align: center;
+    color: #2de930;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* エラーメッセージ */
+.formssss p[style*="color:red"] {
+    margin-top: -10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: red;
 }

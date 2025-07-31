@@ -1,5 +1,16 @@
 // ページ読み込み後に初期化処理を実行
 document.addEventListener("DOMContentLoaded", function () {
+    // 初期状態で操作列を非表示にする
+    document.querySelectorAll(".operation-cell").forEach(cell => {
+        cell.style.display = "none";
+    });
+    const operationHeader = document.getElementById("operation-header");
+    if (operationHeader) {
+        operationHeader.style.display = "none";
+    }
+    document.querySelectorAll(".add-button-wrapper").forEach(btn => {
+        btn.style.display = "none";
+    });
     // 編集モード切り替えボタンを取得
     const editButton = document.getElementById("edit-mode-toggle");
     if (!editButton) return;
@@ -77,8 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 errorDiv.style.display = "block";     // エラーメッセージを表示
                 return;
             }
-
-
+    
 
             // サーバーに保存成功した場合の処理
             const response = await fetch("/exercises", {
@@ -133,11 +143,18 @@ document.addEventListener("DOMContentLoaded", function () {
     function attachDeleteEvent(button) {
         button.addEventListener("click", async function () {
             const row = this.closest("[data-id]");
-            const exerciseId = row.dataset.id;
             const exerciseList = row.parentNode;
+
+            // data-idが存在しない（まだ保存されていないフォーム）の場合は即削除
+            if (!row.dataset.id) {
+                row.remove();
+                return;
+            }
 
             // ダイアログで削除確認を出力
             if (!confirm("本当に削除しますか？")) return;
+
+            const exerciseId = row.dataset.id;
 
             const response = await fetch(`/exercises/${exerciseId}`, {
                 method: "DELETE"

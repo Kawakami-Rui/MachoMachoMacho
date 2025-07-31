@@ -1,10 +1,22 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ログイン-google</title>
+</head>
+<body>
 
-{% block title %}ようこそ{% endblock %}
+    <h1>ログイン</h1>
+    <p>ログインして、トレーニングを再開しましょう</p>
 
-{% block content %}
-  <h2>ようこそ MachoMachoMacho へ！</h2>
-  <p>ログインまたは新規登録してください。</p>
-  <a href="{{ url_for('login') }}">ログイン</a> |
-  <a href="{{ url_for('form') }}">新規登録</a>
-{% endblock %}
+<!-- ログインフォーム -->
+    <form method="POST" action="{{ url_for('login') }}">
+
+        {{ login_form.hidden_tag() }}
+        {{ login_form.email.label }} {{ login_form.email() }}<br>
+        {{ login_form.password.label }} {{ login_form.password() }}<br>
+        <button type="submit">ログイン</button>
+        <a href="{{ url_for('form_page') }}" class="new_account">初めての方はこちら</a>
+
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    </form>

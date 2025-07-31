@@ -32,19 +32,29 @@
 
 
 <h2 class="section-title">カテゴリ別・種目別の合計重量</h2>
-<div class="report-flex">
-  <div class="category-breakdown">
-{% for cat in ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他'] %}
-  {% set ratios = category_exercise_ratios.get(cat) %}
-  {% if ratios %}
-    <h3>{{ cat }}</h3>
-    <ul>
-      {% for name, percent in ratios.items() %}
-        <li>{{ name }}：{{ percent|round(1) }}kg</li>
+
+{% if category_exercise_ratios %}
+  <div class="report-flex">
+    <div class="category-breakdown">
+      {% for cat in ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他'] %}
+        {% set ratios = category_exercise_ratios.get(cat) %}
+        {% if ratios %}
+          <h3>{{ cat }}</h3>
+          <ul>
+            {% for name, percent in ratios.items() %}
+              <li>{{ name }}：{{ percent|round(1) }}kg</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
       {% endfor %}
-    </ul>
-  {% endif %}
-{% endfor %}
+    </div>
+    <div class="category-pie">
+      <canvas id="categoryPieChart" width="400" height="400"></canvas>
+    </div>
+  </div>
+{% else %}
+  <p class="no-data-message">まだ記録がありません</p>
+{% endif %}
   </div>
   <div class="category-pie">
     <canvas id="categoryPieChart" width="400" height="400"></canvas>

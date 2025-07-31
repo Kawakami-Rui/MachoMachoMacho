@@ -1,0 +1,71 @@
+/* 全体背景とフォント */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f8fa;
+    margin: 0;
+    padding: 20px;
+}
+
+/* コンテナ全体 */
+.container, .container2 {
+    background-color: #fff;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* 見出し */
+h1 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* テキストボックス */
+.textbox {
+    width: 100%;
+    padding: 8px 10px;
+    margin-bottom: 15px;
+    border: 1.5px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s;
+}
+
+.textbox:focus {
+    border-color: #4a90e2;
+    outline: none;
+}
+
+/* チェックボックスとラベルの間 */
+.margin {
+    margin-top: 10px;
+    
+}
+
+/* ボタン */
+.button {
+    width: 100%;
+    padding: 10px 0;
+    background-color: #4a90e2;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #357ABD;
+}
+
+/* アカウント情報のpタグ */
+.container2 p {
+    font-size: 15px;
+    color: #555;
+    margin: 6px 0;
+}

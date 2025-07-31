@@ -347,26 +347,29 @@ def delete_log_for_date(year, month, day):
 # ユーザー管理機能（ログイン・個人情報）
 # ========================================
 
-@app.route('/form', methods=["GET", "POST"])
-def form():
+@app.route('/form', methods=['GET', 'POST'])
+def form_page():
     form = PersonalInfoForm()
     if form.validate_on_submit():
-        new_person = PersonalInfo(
+        # データベースに新規ユーザーを作成する処理
+        user = PersonalInfo(
             username=form.username.data,
             email=form.email.data,
-            password=form.password.data,
+            password=form.password.data,  # ハッシュ化推奨
             height=form.height.data,
             weight=form.weight.data
         )
-        db.session.add(new_person)
+        db.session.add(user)
         db.session.commit()
-        return redirect(url_for("user_info", user_id=new_person.id))
-    return render_template("form.html", form=form)
 
-@app.route('/user/<int:user_id>')
-def user_info(user_id):
-    user = PersonalInfo.query.get_or_404(user_id)
-    return render_template("user_info.html", user=user)
+        session['user_id'] = user.id
+        session['username'] = user.username
+
+        return redirect(url_for('index'))  # トップページへ遷移
+
+    # GETやバリデーション失敗時はフォームを表示
+    return render_template('form.html', form=form)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -376,7 +379,7 @@ def login():
         if user and user.password == form.password.data:
             session['user_id'] = user.id
             flash('ログイン成功', 'success')
-            return redirect(url_for('mypage', user_id=user.id))
+            return redirect(url_for('index', user_id=user.id))
         else:
             flash('ユーザー名またはパスワードが間違っています', 'danger')
     return render_template('login.html', form=form)
@@ -396,10 +399,17 @@ def mypage():
     user = PersonalInfo.query.get(user_id)
     return render_template('user_info.html', user=user)
 
-@app.route('/start')
+@app.route('/start', methods=["GET", "POST"])
 def start():
-    return render_template('start.html')
+    register_form = PersonalInfoForm()
+    login_form = LoginForm()
+    return render_template("start.html", register_form=register_form, login_form=login_form)
 
+
+@app.route('/user/<int:user_id>')
+def user_info(user_id):
+    user = PersonalInfo.query.get_or_404(user_id)
+    return render_template("user_info.html", user=user)
 
 # ========================================
 # 週別のトレーニング記録を表示（グラフ、割合）
