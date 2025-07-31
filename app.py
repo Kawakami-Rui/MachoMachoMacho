@@ -164,6 +164,53 @@ def get_chart_data(start_date, end_date):
         })
     return labels, datasets, category_map
 
+
+# ========================================
+# カテゴリ別直近2週間の合計重量を返すAPI
+# ========================================
+@app.route('/api/category-totals-14days')
+def category_totals_14days():
+    current_user_id = session.get("user_id")
+    if not current_user_id:
+        return jsonify({})
+
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=13)
+
+    results = (
+        db.session.query(
+            Exercise.category,
+            func.sum(WorkoutLog.sets * WorkoutLog.reps * WorkoutLog.weight).label("total_weight")
+        )
+        .select_from(WorkoutLog)
+        .join(Exercise, WorkoutLog.exercise_id == Exercise.id)
+        .filter(WorkoutLog.date.between(start_date, end_date))
+        .filter(WorkoutLog.user_id == current_user_id)
+        .group_by(Exercise.category)
+        .all()
+    )
+
+    # 70%目標値（2週間分）
+    targets_70 = {
+        "胸": 6300 * 2,
+        "背中": 6300 * 2,
+        "脚": 10500 * 2,
+        "肩": 4200 * 2,
+        "腕": 2800 * 2,
+        "腹筋": 1400 * 2,
+        "その他": 3500 * 2
+    }
+
+    # 正規化（スコア0〜100%）
+    scores = {}
+    for category, total in results:
+        target = targets_70.get(category, 1)
+        ratio = min(total / target * 100, 100)
+        scores[category] = round(ratio)
+
+    return jsonify(scores)
+
+
 # ========================================
 # トップページ "/" → 今日の年月へリダイレクト
 # ========================================
