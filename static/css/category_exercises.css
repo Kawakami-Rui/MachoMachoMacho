@@ -35,3 +35,15 @@
     flex: 0 0 150px;
     text-align: left;
 }
+
+/* トップページリンク */
+.back-to-index {
+    text-align: center;
+    margin-top: 3em;
+}
+
+.back-to-index a {
+    color: #2ecc71;
+    font-weight: bold;
+    text-decoration: none;
+}
