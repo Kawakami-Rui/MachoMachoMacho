@@ -1,27 +1,31 @@
-{% extends 'base.html' %} <!--ラベルを継承-->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ログイン</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <h2>ログインページ</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <p>{{ form.email.label }}<br>{{ form.email() }}</p>
+        <p>{{ form.password.label }}<br>{{ form.password() }}</p>
+        <p>{{ form.submit() }}</p>
 
-{% block title %}ログイン{% endblock %}
-
-{% block content %}
-  <h2>ログインページ</h2>
-  <form method="POST">
-    {{ form.hidden_tag() }}
-    <p>{{ form.email.label }}<br>{{ form.email() }}</p>
-    <p>{{ form.password.label }}<br>{{ form.password() }}</p>
-    <p>{{ form.submit() }}</p>
-    
-    {% for field, errors in form.errors.items() %}
-      {% for error in errors %}
-        <p style="color:red;">{{ error }}</p>
-      {% endfor %}
-    {% endfor %}
-    
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        {% for msg in messages %}
-          <p style="color:red;">{{ msg }}</p>
+        {% for field, errors in form.errors.items() %}
+            {% for error in errors %}
+                <p style="color:red;">{{ error }}</p>
+            {% endfor %}
         {% endfor %}
-      {% endif %}
-    {% endwith %}
-  </form>
-{% endblock %}
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for msg in messages %}
+                    <p style="color:red;">{{ msg }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </form>
+</body>
+</html>

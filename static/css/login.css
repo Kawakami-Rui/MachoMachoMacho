@@ -1,6 +1,6 @@
 body {
     font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(to right, #e0f7fa, #fff);
+    background: linear-gradient(to right, #ee3c25, #c9b8da); 
     margin: 0;
     padding: 0;
     display: flex;
@@ -66,4 +66,6 @@ button:hover {
 
 .new_account:hover {
     text-decoration: underline;
+    color:rgba(0, 128, 128, 0.547)
 }
+

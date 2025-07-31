@@ -1,0 +1,44 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(to right, #ee3c25, #c9b8da);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    letter-spacing: -0.5px;  /* ← 文字間隔を少し詰める */
+}
+
+form.formssss {
+    background-color: #fff;
+    padding: 2rem 3rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width:20%;
+    max-width: 400px;
+    line-height: 1.2;  /* ← 行間を詰める */
+}
+
+label, p {
+    letter-spacing: -0.3px;  /* ← ラベルや見出しも少し詰める */
+    line-height: 1.2;
+}
+
+h1 {
+  color:rgb(0, 0, 0)
+}
+
+.login {
+    display: block;
+    margin-top: 1rem;
+    text-align: center;
+    color: #00796b;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login:hover {
+    text-decoration: underline;
+    color: rgba(0, 128, 128, 0.7);
+}

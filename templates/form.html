@@ -1,30 +1,30 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>個人情報入力フォーム</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
+</head>
+<body>
+    <h1>新規登録</h1>
+    <p>設定を完了してください</p>
+    <form action="{{ url_for('form_page') }}" method="post" class="formssss">
+        {{ form.hidden_tag() }}
 
-{% block title %}個人情報入力フォーム{% endblock %}
+        <p>{{ form.username.label }}<br>{{ form.username() }}</p>
+        <p>{{ form.email.label }}<br>{{ form.email() }}</p>
+        <p>{{ form.password.label }}<br>{{ form.password() }}</p>
+        <p>{{ form.confirm_password.label }}<br>{{ form.confirm_password() }}</p>
+        <p>{{ form.height.label }}<br>{{ form.height() }}</p>
+        <p>{{ form.weight.label }}<br>{{ form.weight() }}</p>
+        <p>{{ form.submit() }}</p>
+        <a href="{{ url_for('start') }}" class="login">ログイン画面に戻る</a>
 
-{% block head %}
-{{ super() }}
-<!-- 編集用のcssファイルを読み込み -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/form.css') }}">
-{% endblock %}
-
-{% block content %}
-  <h1>個人情報、パスワードを入力保存してください</h1>
-  <form action="{{ url_for('form_page') }}" method="post" class="formssss">
-    {{ form.hidden_tag() }}
-
-    <p>{{ form.username.label }}<br>{{ form.username() }}</p>
-    <p>{{ form.email.label }}<br>{{ form.email() }}</p>
-    <p>{{ form.password.label }}<br>{{ form.password() }}</p>
-    <p>{{ form.confirm_password.label }}<br>{{ form.confirm_password() }}</p>
-    <p>{{ form.height.label }}<br>{{ form.height() }}</p>
-    <p>{{ form.weight.label }}<br>{{ form.weight() }}</p>
-    <p>{{ form.submit() }}</p>
-
-    {% for field, errors in form.errors.items() %}
-      {% for error in errors %}
-        <p style="color:red;">{{ error }}</p>
-      {% endfor %}
-    {% endfor %}
-  </form>
-{% endblock %}
+        {% for field, errors in form.errors.items() %}
+            {% for error in errors %}
+                <p style="color:red;">{{ error }}</p>
+            {% endfor %}
+        {% endfor %}
+    </form>
+</body>
+</html>
