@@ -29,7 +29,8 @@ th {
 }
 /* 編集操作部分の下部に余白をつける */
 .edit-controls {
-        margin-bottom: 10px;
+    margin-bottom: 10px;
+    color: #34495e;
 }
 
 
@@ -40,6 +41,7 @@ th {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    color: #34495e;
 }
 
 /* 共通行のレイアウト（中央揃え） */
@@ -72,17 +74,25 @@ th {
     border-bottom: 1px solid #ccc;
     padding-bottom: 6px;
     margin-bottom: 6px;
+    color: #34495e;
 }
 
 /* カテゴリ名のラベル表示 */
 .group-title {
     font-weight: bold;
     padding: 6px 0;
+    color: #34495e;
 }
 
 /* 各列の基本的な幅設定（operationだけ固定幅） */
 .col {
     flex: 1;
+}
+.col.name,
+.col.detail,
+.col.part,
+.col.operation {
+    color: #34495e;
 }
 .col.operation {
     flex: 0 0 100px;
@@ -98,20 +108,36 @@ th {
     background-color: white;
     cursor: pointer;
     border-radius: 4px;
+    color: #34495e;
 }
 
-/* ボタンのホバー時の色変更 */
-.button:hover {
-    background-color: #f0f0f0;
+.move-up.button,
+.move-down.button {
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    font-size: 20px;
+    color: #34495e;
+    cursor: pointer;
+}
+
+.move-up.button:hover,
+.move-down.button:hover {
+    color: #547ba2;
 }
 
 
-/* 削除ボタンのみ変更 */
 .delete.button {
-    background-color: #ffcccc;
-    color: #d9534f;
-    border-color: #d9534f;
+    background-color: #dc3545;               /* レッド系 */
+    color: white;
+    border: none;
+    cursor: pointer;
 }
+.delete.button:hover {
+    background-color: #c82333;               /* ホバー時：やや濃く */
+}
+
 
 
 /* 保存ボタンのみ変更 */
@@ -133,11 +159,12 @@ th {
 .add-button-wrapper {
     text-align: right;
     margin-top: 4px;
+    color: #34495e;
 }
 /* 種目が未登録のときの表示スタイル */
 .no-entry {
     font-style: italic;
-    color: #666;
+    color: #34495e;
 }
 
 /* 種目名列にエラーメッセージを表示するための基準位置を設定 */
@@ -151,4 +178,23 @@ th {
     color: red;
     font-size: 0.7em;
     margin-top: 2px;
+}
+
+/* トップページリンク */
+.back-to-index {
+  text-align: center;
+  margin-top: 3em;
+}
+
+.back-to-index a {
+  color: #2ecc71;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.training-list {
+  font-size: 1.4em;
+  font-weight: bold;
+  color: #34495e;
+
 }
