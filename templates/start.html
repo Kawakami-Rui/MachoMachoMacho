@@ -3,24 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>ログイン-google</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <center>
-        <div class="container">
-            <h1>ログイン</h1>
-            <p>作業を続けるには、ログインしてください。</p>
 
-            <form method="POST">
-              {{ login_form.hidden_tag() }}
-              {{ login_form.email.label }} {{ login_form.email() }}<br>
-              {{ login_form.password.label }} {{ login_form.password() }}<br>
-              {{ login_form.submit() }}
-            </form>
+    <h1>ようこそーーー MachoMachoMacho へ！</h1>
 
-            <!-- 新規登録へのリンク -->
-            <p>初めての方は <a href="{{ url_for('form') }}">こちらから登録</a></p>
-        </div>
-    </center>
-</body>
-</html>
+<!-- ログインフォーム -->
+    <form method="POST" action="{{ url_for('login') }}">
+      
+        {{ login_form.hidden_tag() }}
+        {{ login_form.email.label }} {{ login_form.email() }}<br>
+        {{ login_form.password.label }} {{ login_form.password() }}<br>
+        <button type="submit">ログイン</button>
+    </form>
+
+
+

@@ -1,30 +1,27 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ログイン-google</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-    <center>
-        <div class="container">
-            <h1>ログイン</h1>
-            <p>作業を続けるには、ログインしてください。</p>
+{% extends 'base.html' %} <!--ラベルを継承-->
 
-            <form method="POST" action="{{ url_for('login') }}">
-                {{ form.hidden_tag() }}
-                <p>{{ form.email.label }}</p>
-                {{ form.email(class="textbox", placeholder="メールアドレス") }}
+{% block title %}ログイン{% endblock %}
 
-                <p>{{ form.password.label }}</p>
-                {{ form.password(class="textbox", placeholder="パスワード") }}
-
-                <p>{{ form.submit(class="button margin") }}</p>
-            </form>
-
-            <!-- 新規登録へのリンク -->
-            <p>初めての方は <a href="{{ url_for('form') }}">こちらから登録</a></p>
-        </div>
-    </center>
-</body>
-</html>
+{% block content %}
+  <h2>ログインページ</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <p>{{ form.email.label }}<br>{{ form.email() }}</p>
+    <p>{{ form.password.label }}<br>{{ form.password() }}</p>
+    <p>{{ form.submit() }}</p>
+    
+    {% for field, errors in form.errors.items() %}
+      {% for error in errors %}
+        <p style="color:red;">{{ error }}</p>
+      {% endfor %}
+    {% endfor %}
+    
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <p style="color:red;">{{ msg }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </form>
+{% endblock %}
