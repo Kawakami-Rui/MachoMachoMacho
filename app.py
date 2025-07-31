@@ -113,10 +113,12 @@ def get_chart_data(start_date, end_date):
     # 日付ごと・種目名ごとに値を格納、種目名→カテゴリのマップも作成
     data_dict = defaultdict(lambda: defaultdict(float))
     category_map = {}
+    exercise_to_category = {}
     for date_obj, exercise_name, category, total_weight in results:
         date_str = date_obj.strftime('%Y-%m-%d')
         data_dict[date_str][exercise_name] = total_weight
         category_map[exercise_name] = category
+        exercise_to_category[exercise_name] = category
 
     labels = [(start_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range((end_date - start_date).days + 1)]
 
@@ -149,7 +151,7 @@ def get_chart_data(start_date, end_date):
             'borderWidth': 1,
             'stack': 'stack1'
         })
-    return labels, datasets
+    return labels, datasets, category_map
 
 # ========================================
 # トップページ "/" → 今日の年月へリダイレクト
@@ -202,12 +204,13 @@ def top_page(year, month):
     end_date = today.date()
     start_date = end_date - timedelta(days=6)
 
-    labels, datasets = get_chart_data(start_date, end_date)
+    labels, datasets, category_map = get_chart_data(start_date, end_date)
 
     return render_template(
         'index.html',
         labels=labels,
         datasets=datasets,  # ← グラフデータを渡す
+        category_map=category_map,  # 種目のカテゴリマップを渡す
         reverse_legend=True,
         year=year,
         month=month,
@@ -399,9 +402,49 @@ def start():
 
 
 # ========================================
-# 週別の合計重量をグラフ表示
+# 週別のトレーニング記録を表示（グラフ、割合）
 # ========================================
+# 今週のグラフへリダイレクト
+@app.route('/chart')
+def weekly_data():
+    today = datetime.now().date()
+    sunday = today - timedelta(days=(today.weekday() + 1) % 7)  # 日曜始まり
+    return redirect(url_for('chart_week_range', week_range=f"{sunday.strftime('%Y-%m-%d')}~{(sunday + timedelta(days=6)).strftime('%Y-%m-%d')}"))
 
+# 週の範囲を指定してグラフ表示（例: /chart/week/2025-07-27~2025-08-02）
+@app.route('/chart/<week_range>')
+def chart_week_range(week_range):
+    try:
+        # '2025-07-27~2025-08-02' 形式でパース
+        start_str, end_str = week_range.split('~')
+        start_date = datetime.strptime(start_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_str, '%Y-%m-%d').date()
+    except ValueError:
+        return "Invalid week range format. Use YYYY-MM-DD~YYYY-MM-DD.", 400
+
+    labels, datasets, category_map = get_chart_data(start_date, end_date)
+
+    # 前週・次週のURL作成
+    prev_start = (start_date - timedelta(weeks=1)).strftime('%Y-%m-%d')
+    prev_end = (end_date - timedelta(weeks=1)).strftime('%Y-%m-%d')
+
+    next_start_date = start_date + timedelta(weeks=1)
+    next_end_date = end_date + timedelta(weeks=1)
+    today = datetime.now().date()
+    next_url = None
+    if next_start_date <= today:
+        next_url = url_for('chart_week_range', week_range=f"{next_start_date.strftime('%Y-%m-%d')}~{next_end_date.strftime('%Y-%m-%d')}")
+
+    return render_template(
+        'training_weekly_data.html',
+        labels=labels,
+        datasets=datasets,
+        category_map=category_map,
+        reverse_legend=True,
+        week_range=f"{start_date.strftime('%Y/%m/%d')}〜{end_date.strftime('%Y/%m/%d')}",
+        prev_url=url_for('chart_week_range', week_range=f"{prev_start}~{prev_end}"),
+        next_url=next_url
+    )
 
 # ========================================
 # 筋肉部位ごとの直近1週間の合計重量を返すAPI

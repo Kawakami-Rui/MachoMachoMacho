@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
         type: 'bar',
         data: {
             labels: parsed.labels.map(dateStr => {
-                const [, month, day] = dateStr.split('-');
-                return `${month}/${day}`;
+                const date = new Date(dateStr);
+                return ['日', '月', '火', '水', '木', '金', '土'][date.getDay()];
             }),
             datasets: parsed.datasets
         },
@@ -81,8 +81,12 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             scales: {
                 x: { stacked: true },
-                y: { stacked: true, beginAtZero: true }
+                y: { stacked: true,
+                     beginAtZero: true
+                    }
             }
         }
     });
 });
+
+
