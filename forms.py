@@ -1,17 +1,16 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, FloatField
+from wtforms import StringField, PasswordField, SubmitField, EmailField, IntegerField
 from wtforms.validators import DataRequired, Email, EqualTo, Length
 from wtforms.validators import DataRequired, Length
 
            ###バリデータクラス定義###
 class PersonalInfoForm(FlaskForm):
-    username = StringField('ユーザー名', validators=[DataRequired(), Length(min=1, max=50)])
-    email = StringField('メールアドレス', validators=[DataRequired(), Email()])
-    password = PasswordField('パスワード', validators=[DataRequired(), Length(min=6)])
-    confirm_password = PasswordField('パスワード確認用', validators=[
-        DataRequired(), EqualTo('password', message='パスワードが一致しません')])
-    height = FloatField('身長', validators=[DataRequired()])
-    weight = FloatField('体重', validators=[DataRequired()])
+    username = StringField('ユーザー名', validators=[DataRequired(), Length(min=3, max=50)])
+    email = EmailField('メールアドレス', validators=[DataRequired(), Email(message='有効なメールアドレスを入力してください')])
+    password = PasswordField('パスワード',validators=[DataRequired(),Length(min=6, max=12, message='パスワードの長さは6文字以上12文字以内です')])
+    confirm_password = PasswordField('パスワード確認 ', validators=[DataRequired(),EqualTo('password', 'パスワードが一致しません')])
+    height = IntegerField('身長', validators=[DataRequired()])
+    weight = IntegerField('体重', validators=[DataRequired()])
     submit = SubmitField('送信')
 
             ###ログイン用のフォーム###

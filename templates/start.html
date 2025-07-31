@@ -32,41 +32,15 @@
         {{ register_form.hidden_tag() }}
         
         <label>{{ register_form.username.label }}</label> {{ register_form.username() }}<br>
-        {% for error in register_form.username.errors %}
-            <span style="color: red;">{{ error }}</span><br>
-        {% endfor %}
-
         <label>{{ register_form.email.label }}</label> {{ register_form.email() }}<br>
-        {% for error in register_form.email.errors %}
-            <span style="color: red;">{{ error }}</span><br>
-        {% endfor %}
-
         <label>{{ register_form.password.label }}</label> {{ register_form.password() }}<br>
-        {% for error in register_form.password.errors %}
-            <span style="color: red;">{{ error }}</span><br>
-        {% endfor %}
-
         <label>{{ register_form.confirm_password.label }}</label> {{ register_form.confirm_password() }}<br>
-        {% for error in register_form.confirm_password.errors %}
-            <span style="color: red;">{{ error }}</span><br>
-        {% endfor %}
-
         <label>{{ register_form.height.label }}</label> {{ register_form.height() }}<br>
-        {% for error in register_form.height.errors %}
-            <span style="color: red;">{{ error }}</span><br>
-        {% endfor %}
-
         <label>{{ register_form.weight.label }}</label> {{ register_form.weight() }}<br>
-        {% for error in register_form.weight.errors %}
-            <span style="color: red;">{{ error }}</span><br>
-        {% endfor %}
-
+        
         <button type="submit">登録</button>
     </form>
 </div>
-
-
-
 
     <!-- JSで表示切り替え -->
     <script>

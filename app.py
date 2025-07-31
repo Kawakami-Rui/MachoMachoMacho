@@ -353,14 +353,13 @@ def form():
             email=form.email.data,
             password=form.password.data,
             height=form.height.data,
-            weight=form.weight.data
+            weight=form.weight.data,
         )
         db.session.add(new_person)
         db.session.commit()
         session['user_id'] = new_person.id
-        return redirect(url_for('index'))
-    else:
-        return render_template("start.html", register_form=form, login_form=LoginForm())
+        return redirect(url_for('index'))  
+    return render_template('form.html', form=form)
 
 @app.route('/user/<int:user_id>')
 def user_info(user_id):
