@@ -105,8 +105,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     <div class="col name">${result.name}</div>
                     <div class="col detail">${result.detail}</div>
                     <div class="col operation operation-cell">
-                        <button class="move-up button">↑</button>
-                        <button class="move-down button">↓</button>
+                        <button class="move-up button">⬆</button>
+                        <button class="move-down button">⬇</button>
                         <button class="delete button">削除</button>
                     </div>
                 `;
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 exerciseList.insertBefore(newRow, inputRow);
                 // 全ての種目行にイベントを再登録
                 document.querySelectorAll(".exercise-row").forEach(row => {
-                    const deleteButton = row.querySelector(".delete button");
+                    const deleteButton = row.querySelector(".delete");
                     if (deleteButton) attachDeleteEvent(deleteButton);
                     attachMoveEvents(row);
                 });

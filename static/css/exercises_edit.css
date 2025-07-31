@@ -109,6 +109,7 @@ th {
     cursor: pointer;
     border-radius: 4px;
     color: #34495e;
+    transition: background-color 0.2s ease;
 }
 
 .move-up.button,
@@ -142,18 +143,27 @@ th {
 
 /* 保存ボタンのみ変更 */
 .save.button {
-    background-color: #dff0d8;
-    color: #3c763d;
-    border-color: #3c763d;
+    background-color: #28a745;               /* グリーン系 */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.save.button:hover {
+    background-color: #218838;               /* ホバー時：濃い緑 */
 }
 
 /* 取消ボタンのみ変更 */
 .cancel.button {
-    background-color: #ceedf7;
-    color: #6191a0;
-    border-color: #3d7b8e;
+    background-color: #7bb2ea;               /* ブルー系 */
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
-
+.cancel.button:hover {
+    background-color: #5a9bd4;               /* ホバー時：やや濃く */
+}
 
 /* ＋追加ボタンの位置を右下に配置 */
 .add-button-wrapper {
