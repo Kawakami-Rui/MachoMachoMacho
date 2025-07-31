@@ -33,6 +33,7 @@ label {
 }
 
 input {
+    text-align: center;
     width: 100%;
     padding: 0.5rem;
     margin-top: 0.3rem;

@@ -7,7 +7,7 @@
 </head>
 <body>
     <h1>新規登録</h1>
-    <p>設定を完了してください</p>
+    <p>設定を完了してトレーニングを始めましょう</p>
     <form action="{{ url_for('form_page') }}" method="post" class="formssss">
         {{ form.hidden_tag() }}
 
@@ -17,8 +17,8 @@
         <p>{{ form.confirm_password.label }}<br>{{ form.confirm_password() }}</p>
         <p>{{ form.height.label }}<br>{{ form.height() }}</p>
         <p>{{ form.weight.label }}<br>{{ form.weight() }}</p>
-        <p>{{ form.submit() }}</p>
-        <a href="{{ url_for('start') }}" class="login">ログイン画面に戻る</a>
+        <p>{{ form.submit() }} </p>
+        <a href="{{ url_for('start') }}">ログイン画面に戻る</a>
 
         {% for field, errors in form.errors.items() %}
             {% for error in errors %}

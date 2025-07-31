@@ -1,3 +1,4 @@
+/* 背景と全体レイアウト */
 body {
     font-family: 'Segoe UI', sans-serif;
     background: linear-gradient(to right, #ee3c25, #c9b8da);
@@ -7,38 +8,84 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    letter-spacing: -0.5px;  /* ← 文字間隔を少し詰める */
+    flex-direction: column;
 }
 
-form.formssss {
-    background-color: #fff;
-    padding: 2rem 3rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width:20%;
-    max-width: 400px;
-    line-height: 1.2;  /* ← 行間を詰める */
+/* 白い枠（フォームカード） */
+.formssss {
+    background-color: #ffffff;
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    width: 350px;
 }
 
-label, p {
-    letter-spacing: -0.3px;  /* ← ラベルや見出しも少し詰める */
-    line-height: 1.2;
-}
-
+/* タイトル */
 h1 {
-  color:rgb(0, 0, 0)
-}
-
-.login {
-    display: block;
-    margin-top: 1rem;
+    font-size: 24px;
+    margin-bottom: 5px;
+    color: #333;
     text-align: center;
-    color: #00796b;
-    text-decoration: none;
-    font-weight: bold;
 }
 
-.login:hover {
+/* サブタイトル */
+p:first-of-type {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* ラベルと入力欄 */
+.formssss p {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.formssss input[type="text"],
+.formssss input[type="email"],
+.formssss input[type="password"],
+.formssss input[type="number"] {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+/* 送信ボタン */
+.formssss input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #00796b;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.formssss input[type="submit"]:hover {
+    background-color: #004d40;
+}
+
+/* ログインリンク */
+a {
+    display: block;
+    margin-top: 15px;
+    text-align: center;
+    color: #2de930;
+    text-decoration: none;
+}
+
+a:hover {
     text-decoration: underline;
-    color: rgba(0, 128, 128, 0.7);
+}
+
+/* エラーメッセージ */
+.formssss p[style*="color:red"] {
+    margin-top: -10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: red;
 }
