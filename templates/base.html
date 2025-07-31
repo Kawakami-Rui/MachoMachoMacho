@@ -12,8 +12,16 @@
 </head>
 <body>
     <header>
-        <h1>MachoMachoMacho</h1>
+    <div></div> <!-- 左スペース -->
+    <h1>MachoMachoMacho</h1>
+    <a href="{{ url_for('user_info', user_id=session['user_id']) }}">
+    <img src="https://as1.ftcdn.net/jpg/16/02/74/14/1000_F_1602741426_0u7jLpfCG6ye514Rm0cMUtNXgzqb0FeV.jpg"
+         alt="アイコン" >
+</a>
+
+
     </header>
+
 
     <main>
         {% block content %}
