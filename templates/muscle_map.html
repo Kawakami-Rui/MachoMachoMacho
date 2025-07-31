@@ -19,63 +19,67 @@
             return;
         }
 
-        // テスト用に任意のスコアを用意（例：部位ごとの合計重量）
-        const scores = {
-            chest: 0,
-            arm: 20,
-            shoulder: 50,
-            abs: 80,
-            leg: 90,
-            back: 100
+        // 和名カテゴリ → SVG ID の対応
+        const idMap = {
+            "胸": "chest",
+            "肩": "shoulder",
+            "腕": "arm",
+            "背中": "back",
+            "腹筋": "abs",
+            "脚": "leg",
+            "その他": "other"
         };
 
         // スコアに応じて(190,190,190)→(255,30,30)のグラデーション
         function scoreToColor(score) {
             const ratio = Math.min(score / 100, 1);
-
             const r = Math.floor(190 + (255 - 190) * ratio);
             const g = Math.floor(190 - (190 - 30) * ratio);
             const b = Math.floor(190 - (190 - 30) * ratio);
-
             return `rgb(${r}, ${g}, ${b})`;
         }
 
-        Object.entries(scores).forEach(([id, score]) => {
-            const group = svgDoc.getElementById(id);
-            if (group) {
+        fetch('/api/category-totals-14days')
+            .then(response => response.json())
+            .then(scores => {
+                const label = document.getElementById("hover-label");
 
-                const link = document.createElementNS("http://www.w3.org/2000/svg", "a");
-                link.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", `/category/${id}`);
-                link.setAttribute("target", "_top");
-                group.parentNode.insertBefore(link, group);
-                link.appendChild(group);
+                // 全カテゴリに対してスコアを0で初期化（存在しないものに対応）
+                Object.keys(idMap).forEach(jp => {
+                    if (!(jp in scores)) scores[jp] = 0;
+                });
 
-                const elements = group.querySelectorAll("path, polygon, ellipse, rect, circle");
-                const color = scoreToColor(score);
-                elements.forEach(elem => {
-                    elem.setAttribute("style", `fill: ${color} !important`);
-                });
-            }
-        });
+                Object.entries(scores).forEach(([jpCategory, score]) => {
+                    const id = idMap[jpCategory];
+                    const group = svgDoc.getElementById(id);
+                    if (group) {
+                        const link = document.createElementNS("http://www.w3.org/2000/svg", "a");
+                        link.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", `/category/${id}`);
+                        link.setAttribute("target", "_top");
+                        group.parentNode.insertBefore(link, group);
+                        link.appendChild(group);
 
-        const label = document.getElementById("hover-label");
-        Object.entries(scores).forEach(([id, score]) => {
-            const group = svgDoc.getElementById(id);
-            if (group) {
-                group.addEventListener("mouseenter", (event) => {
-                    label.textContent = `→ ${id}`;
-                    label.style.display = "block";
-                    label.style.left = event.clientX + 10 + "px";
-                    label.style.top = event.clientY - 30 + "px";
+                        const elements = group.querySelectorAll("path, polygon, ellipse, rect, circle");
+                        const color = scoreToColor(score);
+                        elements.forEach(elem => {
+                            elem.setAttribute("style", `fill: ${color} !important`);
+                        });
+
+                        group.addEventListener("mouseenter", (event) => {
+                            label.textContent = `→ ${jpCategory}`;
+                            label.style.display = "block";
+                            label.style.left = event.clientX + 10 + "px";
+                            label.style.top = event.clientY - 30 + "px";
+                        });
+                        group.addEventListener("mousemove", (event) => {
+                            label.style.left = event.clientX + 10 + "px";
+                            label.style.top = event.clientY - 30 + "px";
+                        });
+                        group.addEventListener("mouseleave", () => {
+                            label.style.display = "none";
+                        });
+                    }
                 });
-                group.addEventListener("mousemove", (event) => {
-                    label.style.left = event.clientX + 10 + "px";
-                    label.style.top = event.clientY - 30 + "px";
-                });
-                group.addEventListener("mouseleave", () => {
-                    label.style.display = "none";
-                });
-            }
-        });
+            });
     });
 </script>
