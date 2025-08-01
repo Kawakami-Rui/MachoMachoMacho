@@ -17,5 +17,29 @@
   <li>身長: {{ user.height }} cm</li>
   <li>体重: {{ user.weight }} kg</li>
 </ul>
+
+<h3>過去の{{ user.username}}さんのBIG3のベスト記録</h3>
+<ul>
+  {% for key, ex in core_exercises.items() %}
+    <li>
+      {{ ex.name }}:
+      {% if best_weights.get(ex.id) %}
+        {{ best_weights[ex.id].weight }} kg
+      {% else %}
+        早くやれ！！
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+<h3>{{ user.username}}さんのこれまでのベスト記録（履歴ありのみ）</h3>
+<ul>
+  {% for ex_id, data in best_weights.items() %}
+    <li>{{ data.name }}: {{ data.weight }} kg</li>
+  {% else %}
+    <li>記録なし</li>
+  {% endfor %}
+</ul>
+<a href="{{ url_for('select') }}">難易度選択ページへ</a>
+
 <a href="{{ url_for('index') }}" class="btn">戻る</a>
 {% endblock %}

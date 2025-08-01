@@ -28,8 +28,10 @@
                 {% if day == 0 %}
                     <td></td>
                 {% else %}
-                <!-- 今日のページ関連に飛ぶようにしたい部分 -->
-                    <td class="{% if day == today.day and month == today.month and year == today.year %}today{% endif %}">
+                    <td class="
+                        {% if day == today.day and month == today.month and year == today.year %}today{% endif %}
+                        {% if day in filled_days %} filled{% endif %}
+                    ">
                         {% if day != 0 and (year < today.year or (year == today.year and month < today.month) or (year == today.year and month == today.month and day <= today.day)) %}
                             <a href="{{ url_for('show_diary', year=year, month=month, day=day) }}"><span class="day-number">{{ day }}</span></a>
                         {% else %}

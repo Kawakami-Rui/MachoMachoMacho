@@ -4,6 +4,10 @@ td.today {
     font-weight: bold;
 }
 
+td.filled {
+    background-color: #ff000097; /* 入力済みを緑 */
+}
+
 /* テーブル全体のスタイル */
 table {
     width: 100%;

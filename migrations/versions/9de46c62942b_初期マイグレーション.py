@@ -1,8 +1,8 @@
-"""Initial migration
+"""初期マイグレーション
 
-Revision ID: ce35e2b05c61
+Revision ID: 9de46c62942b
 Revises: 
-Create Date: 2025-07-31 22:36:55.220697
+Create Date: 2025-08-01 13:22:34.511436
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ce35e2b05c61'
+revision = '9de46c62942b'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,6 +25,8 @@ def upgrade():
     sa.Column('password', sa.String(length=100), nullable=False),
     sa.Column('height', sa.String(length=10), nullable=True),
     sa.Column('weight', sa.String(length=10), nullable=True),
+    sa.Column('difficulty', sa.String(length=20), nullable=True),
+    sa.Column('custom_number', sa.Float(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('exercises',
@@ -46,6 +48,7 @@ def upgrade():
     sa.Column('sets', sa.Integer(), nullable=True),
     sa.Column('reps', sa.Integer(), nullable=True),
     sa.Column('weight', sa.Float(), nullable=True),
+    sa.Column('comment', sa.String(length=500), nullable=True),
     sa.ForeignKeyConstraint(['exercise_id'], ['exercises.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['personal_info.id'], ),
     sa.PrimaryKeyConstraint('id')

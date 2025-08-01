@@ -16,3 +16,19 @@ header, footer {
 main {
     padding: 2rem;
 }
+
+header img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: #6cdeff;
+
+  border: 2px solid white;             /* 境界線 */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 影で立体感 */
+  transition: transform 0.2s ease;     /* ホバーアニメ */
+  cursor: pointer;                     /* クリックできそうな感じに */
+}
+
+header img:hover {
+  transform: scale(1.1); /* 少し拡大して動きを出す */
+}

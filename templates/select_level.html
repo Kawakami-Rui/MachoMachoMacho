@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}難易度選択{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/celect_level.css') }}">
+{% endblock %}
+
+{% block content %}
+</head>
+<body>
+  <div class="container">
+    <h1>難易度を選んでください</h1>
+
+    <div class="info-box">
+      <h2>上級を選択した際の二週間の目標</h2>
+      <ul>
+        <li><strong>胸：</strong>9000</li>
+        <li><strong>背中：</strong>9000</li>
+        <li><strong>脚：</strong>15000</li>
+        <li><strong>肩：</strong>6000</li>
+        <li><strong>腕：</strong>4000</li>
+        <li><strong>腹筋：</strong>2000</li>
+        <li><strong>その他：</strong>5000</li>
+      </ul>
+      <p>
+        これ以上を目指す筋肉マッチョは、カスタムに数字を入力しよう！!!!!!!!<br>
+        例えば <strong>1.5</strong> を入力した場合には、上級の目標値の <strong>1.5倍</strong> の負荷が目標値となるぞ！！!!
+        目標値の値が筋肉図の色の変化のしやすさになるぞ！！
+      </p>
+    </div>
+
+    <form action="{{ url_for('level') }}" method="POST" id="level-form">
+      <div class="button-group">
+        <button type="submit" name="difficulty" value="beginner">初級</button>
+        <button type="submit" name="difficulty" value="intermediate">中級</button>
+        <button type="submit" name="difficulty" value="advanced">上級</button>
+      </div>
+
+      <div class="custom-input">
+        <label for="custom-input">カスタム：</label>
+        <input type="number" id="custom-input" name="custom_value" placeholder="例：1.5" step="0.1" />
+        <button type="submit" name="difficulty" value="custom">決定</button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
+
+<p><a href="{{ url_for('index') }}">← トップメニューへ戻る</a></p>
+
+{% endblock %}

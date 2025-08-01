@@ -174,6 +174,9 @@ def category_totals_14days():
     if not current_user_id:
         return jsonify({})
 
+    user = PersonalInfo.query.get(current_user_id)
+    multiplier = get_difficulty_multiplier(user)
+
     end_date = datetime.now().date()
     start_date = end_date - timedelta(days=13)
 
@@ -190,21 +193,23 @@ def category_totals_14days():
         .all()
     )
 
-    # 70%目標値（2週間分）
-    targets_70 = {
-        "胸": 6300 * 2,
-        "背中": 6300 * 2,
-        "脚": 10500 * 2,
-        "肩": 4200 * 2,
-        "腕": 2800 * 2,
-        "腹筋": 1400 * 2,
-        "その他": 3500 * 2
+    # 100%基準の目標値
+    base_targets = {
+        "胸": 9000,
+        "背中": 9000,
+        "脚": 15000,
+        "肩": 6000,
+        "腕": 4000,
+        "腹筋": 2000,
+        "その他": 5000
     }
 
-    # 正規化（スコア0〜100%）
+    # 難易度倍率と2週間分を反映
+    targets = {k: v * multiplier * 2 for k, v in base_targets.items()}
+
     scores = {}
     for category, total in results:
-        target = targets_70.get(category, 1)
+        target = targets.get(category, 1)
         ratio = min(total / target * 100, 100)
         scores[category] = round(ratio)
 
@@ -243,6 +248,23 @@ def top_page(year, month):
     cal = calendar.Calendar(firstweekday=6)  # 日曜始まり
     month_days = cal.monthdayscalendar(year, month)
 
+    # ▼ 入力済み日をDBから取得
+    user_id = session.get('user_id')
+    start_date = date(year, month, 1)
+    # 月末を求める
+    if month == 12:
+        end_date = date(year + 1, 1, 1)
+    else:
+        end_date = date(year, month + 1, 1)
+
+    logs = WorkoutLog.query.filter(
+        WorkoutLog.user_id == user_id,
+        WorkoutLog.date >= start_date,
+        WorkoutLog.date < end_date
+    ).all()
+    # 入力済み日をリスト化（文字列 or 数値どちらでもOK）
+    filled_days = [log.date.day for log in logs]
+
     # 前月計算
     prev_month = month - 1
     prev_year = year
@@ -280,7 +302,8 @@ def top_page(year, month):
         prev_month=prev_month,
         next_year=next_year,
         next_month=next_month,
-        grouped_exercises=ordered_groups
+        grouped_exercises=ordered_groups,
+        filled_days=filled_days
     )
 
 # ========================================
@@ -340,6 +363,21 @@ def show_category_exercises(category_name):
         values=values
     )
 
+def get_difficulty_multiplier(user: PersonalInfo):
+    if not user:
+        return 0.5  # ログインしていない場合などはデフォルト0.5
+
+    # カスタム倍率またはプリセット倍率が設定されていればそれを返す
+    if user.custom_number:
+        return user.custom_number
+
+    # custom_numberが未設定の場合、difficultyから決定（保険用）
+    difficulty_map = {
+        'beginner': 0.5,
+        'intermediate': 0.75,
+        'advanced': 1.0
+    }
+    return difficulty_map.get(user.difficulty, 0.5)  # 未設定なら0.5
 
 
 # ========================================
@@ -421,15 +459,17 @@ def show_diary(year, month, day):
         sets_list = request.form.getlist('sets')
         reps_list = request.form.getlist('reps')
         weight_list = request.form.getlist('weight')
+        comment = request.form.getlist('comment')
 
         for i in range(len(exercise_ids)):
-            if exercise_ids[i] and sets_list[i] and reps_list[i] and weight_list[i]:
+            if exercise_ids[i] and sets_list[i] and reps_list[i] and weight_list[i]and comment[i]:
                 log = WorkoutLog(
                     date=date_obj,
                     exercise_id=int(exercise_ids[i]),
                     sets=int(sets_list[i]),
                     reps=int(reps_list[i]),
                     weight=float(weight_list[i]),
+                    comment=comment[i],
                     user_id=session.get("user_id")
                 )
                 db.session.add(log)
@@ -515,7 +555,37 @@ def mypage():
         flash("ログインしてください")
         return redirect(url_for('login'))
     user = PersonalInfo.query.get(user_id)
-    return render_template('user_info.html', user=user)
+
+    # user_info関数と同じロジックを追加
+    bench = Exercise.query.filter_by(name='ベンチプレス').first()
+    rift = Exercise.query.filter_by(name='デッドリフト').first()
+    squat = Exercise.query.filter_by(name='スクワット').first()
+    
+    core_exercises = {
+        'bench': bench,
+        'rift': rift,
+        'squat': squat
+    }
+    best_records = db.session.query(
+        WorkoutLog.exercise_id,         # 種目ID
+        Exercise.name,                  # 種目名
+        func.max(WorkoutLog.weight)     # 最大重量
+    ).join(Exercise).filter(
+        WorkoutLog.user_id == user.id,      # 対象ユーザーのログのみ
+        Exercise.is_deleted == False        # 削除されていない種目のみ
+    ).group_by(
+        WorkoutLog.exercise_id, Exercise.name
+    ).all()
+
+    best_weights = {ex_id: {'name': name, 'weight': weight} for ex_id, name, weight in best_records}
+    
+    # テンプレートにcore_exercisesを渡す
+    return render_template(
+    'user_info.html',
+    user=user,
+    core_exercises=core_exercises,
+    best_weights=best_weights
+)
 
 @app.route('/start', methods=["GET", "POST"])
 def start():
@@ -526,8 +596,42 @@ def start():
 
 @app.route('/user/<int:user_id>')
 def user_info(user_id):
+    # 1. ユーザー情報取得（存在しない場合は404）
     user = PersonalInfo.query.get_or_404(user_id)
-    return render_template("user_info.html", user=user)
+
+    # 2. ベスト記録（種目ごとの最大重量）
+    best_records = db.session.query(
+        WorkoutLog.exercise_id,         # 種目ID
+        Exercise.name,                  # 種目名
+        func.max(WorkoutLog.weight)     # 最大重量
+    ).join(Exercise).filter(
+        WorkoutLog.user_id == user.id,      # 対象ユーザーのログのみ
+        Exercise.is_deleted == False        # 削除されていない種目のみ
+    ).group_by(
+        WorkoutLog.exercise_id, Exercise.name
+    ).all()
+
+    # → {exercise_id: {'name': 種目名, 'weight': 最大重量}}
+    best_weights = {ex_id: {'name': name, 'weight': weight} for ex_id, name, weight in best_records}
+
+    bench = Exercise.query.filter_by(name='ベンチプレス').first()
+    rift = Exercise.query.filter_by(name='デッドリフト').first()
+    squat = Exercise.query.filter_by(name='スクワット').first()
+
+    core_exercises = {
+        'bench': bench,
+        'rift': rift,
+        'squat': squat
+    }
+
+    # 4. user_info.html にデータを渡す
+    return render_template(
+        'user_info.html',
+        user=user,
+        best_weights=best_weights,
+        core_exercises=core_exercises
+    )
+
 
 # ========================================
 # 週別のトレーニング記録を表示（グラフ、割合）
@@ -636,9 +740,58 @@ def get_muscle_status():
 
     return jsonify(status)
 
+# ========================================
+# 難易度選択画面
+# ========================================
+@app.route('/select')
+def select():
+    return render_template('select_level.html')
+
+@app.route('/level', methods=['POST'])
+def level():
+    print("--- level関数が呼び出されました ---")
+    difficulty = request.form.get('difficulty')
+    custom_value = request.form.get('custom_value')
+    print(f"受け取ったデータ: difficulty={difficulty}, custom_value={custom_value}")
+
+    user_id = session.get('user_id')
+    if not user_id:
+        print("エラー: ユーザーがログインしていません")
+        flash("ログインしてください")
+        return redirect(url_for('login'))
+
+    user = PersonalInfo.query.get(user_id)
+    user.difficulty = difficulty
+
+    # 難易度と倍率のマッピング
+    level_map = {
+        'beginner': 0.5,       # 初心者 → 基準値の50%
+        'intermediate': 0.75,  # 中級者 → 基準値の75%
+        'advanced': 1.0        # 上級者 → 基準値の100%
+    }
+
+    if difficulty in level_map:
+        user.custom_number = level_map[difficulty]
+    elif difficulty == 'custom' and custom_value:
+        try:
+            # カスタム倍率をfloatで設定
+            user.custom_number = float(custom_value)
+        except ValueError:
+            user.custom_number = None
+    else:
+        user.custom_number = None
+
+    print(f"ユーザーID {user_id} の difficulty を {user.difficulty} に、custom_number を {user.custom_number} に設定しました")
+
+    db.session.commit()
+    print("--- データベースにコミットが完了しました ---")
+
+    flash(f"難易度: {difficulty}、倍率: {user.custom_number}", "success")
+    return redirect(url_for('mypage'))
+
 
 # ========================================
 # 実行
 # ========================================
 if __name__ == '__main__':
-    app.run(port=5001, debug=True)
+    app.run(port=5010, debug=True)

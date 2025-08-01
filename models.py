@@ -12,6 +12,9 @@ class PersonalInfo(db.Model):
     password = db.Column(db.String(100), nullable=False)
     height = db.Column(db.String(10), nullable=True)
     weight = db.Column(db.String(10), nullable=True)
+    difficulty = db.Column(db.String(20), nullable=True)       # 難易度
+    custom_number = db.Column(db.Float, nullable=True)
+
 
     exercises = db.relationship('Exercise', backref='user', lazy=True)
 
@@ -54,6 +57,7 @@ class WorkoutLog(db.Model):
     sets = db.Column(db.Integer, nullable=True)                  # セット数
     reps = db.Column(db.Integer, nullable=True)                  # レップ数
     weight = db.Column(db.Float, nullable=True)                  # 使用重量（kg）
+    comment = db.Column(db.String(500), nullable=True) 
 
     # Exerciseとのリレーション設定（論理削除されていないもののみ取得）
     exercise = db.relationship('Exercise', viewonly=True)

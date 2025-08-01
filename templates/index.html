@@ -36,14 +36,46 @@
 
 <!-- 筋肉人形を呼び出す -->
 {% include "muscle_map.html" %}
+<p>部位をクリックするとその部位に応じた種目が表示されます。</p>
 
-<p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
-<p><a href="{{ url_for('weekly_data') }}">→ 一週間の一覧へ</a></p>
-{% if session['user_id'] %}
-  <p><a href="{{ url_for('user_info', user_id=session['user_id']) }}">→ ユーザー情報</a></p>
-{% endif %}
+<div class="top-page-links">
+  <p><a href="{{ url_for('exercise_settings') }}">→ 種目一覧へ</a></p>
+  <p><a href="{{ url_for('weekly_data') }}">→ 一週間の一覧へ</a></p>
+  {% if session['user_id'] %}
+    <p><a href="{{ url_for('user_info', user_id=session['user_id']) }}">→ ユーザー情報</a></p>
+  {% endif %}
+</div>
 
-<p>Flaskでチーム開発</p>
+<style>
+.top-page-links {
+    margin: 1.5em auto;
+    padding: 1em;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    max-width: 800px;
+    display: flex;
+    justify-content: center;
+    gap: 2em;
+    flex-wrap: wrap;
+}
+
+.top-page-links p {
+    margin: 0;
+}
+
+.top-page-links a {
+    text-decoration: none;
+    font-weight: bold;
+    color: #2c3e50;
+    transition: color 0.2s ease;
+}
+
+.top-page-links a:hover {
+    color: #007bff;
+}
+</style>
+
 
 <!-- 編集用のJavaScriptファイルを読み込み -->
 <script src="{{ url_for('static', filename='js/muscle_quotes.js') }}"></script>
