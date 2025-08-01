@@ -1,21 +1,42 @@
-{% extends 'base.html' %} <!--ラベルを継承-->
+{% extends 'base.html' %}
 
 {% block title %}ユーザー情報{% endblock %}
 
 {% block head %}
 {{ super() }}
-<!-- ユーザー情報のCSSファイルを読み込み -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/user_info.css') }}">
 {% endblock %}
 
 {% block content %}
 
-<!--データベースから情報取得、表示する(jinja2構文)-->
 <h2>{{ user.username }} さんの情報</h2>
 <ul>
   <li>メールアドレス: {{ user.email }}</li>
   <li>身長: {{ user.height }} cm</li>
   <li>体重: {{ user.weight }} kg</li>
 </ul>
+<h3>過去の{{ user.username}}さんのBIG3のベスト記録</h3>
+<ul>
+  {% for key, ex in core_exercises.items() %}
+    <li>
+      {{ ex.name }}:
+      {% if best_weights.get(ex.id) %}
+        {{ best_weights[ex.id].weight }} kg
+      {% else %}
+        早くやれ！！
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+<h3>{{ user.username}}さんのこれまでのベスト記録（履歴ありのみ）</h3>
+<ul>
+  {% for ex_id, data in best_weights.items() %}
+    <li>{{ data.name }}: {{ data.weight }} kg</li>
+  {% else %}
+    <li>記録なし</li>
+  {% endfor %}
+</ul>
+<a href="{{ url_for('select') }}">難易度選択ページへ</a>
+
 <a href="{{ url_for('index') }}" class="btn">戻る</a>
 {% endblock %}

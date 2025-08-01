@@ -96,6 +96,17 @@ def get_grouped_exercises():
     return ordered_groups
 
 # ==================================================
+# 指定カテゴリの種目一覧取得関数
+# ==================================================
+def get_exercises_by_category(category_name):
+    """指定したカテゴリに属する種目一覧を取得"""
+    exercises = Exercise.query.filter_by(
+        category=category_name,
+        is_deleted=False
+    ).order_by(Exercise.order).all()
+    return exercises
+
+# ==================================================
 # グラフデータ取得関数
 # ==================================================
 def get_chart_data(start_date, end_date):
@@ -113,10 +124,12 @@ def get_chart_data(start_date, end_date):
     # 日付ごと・種目名ごとに値を格納、種目名→カテゴリのマップも作成
     data_dict = defaultdict(lambda: defaultdict(float))
     category_map = {}
+    exercise_to_category = {}
     for date_obj, exercise_name, category, total_weight in results:
         date_str = date_obj.strftime('%Y-%m-%d')
         data_dict[date_str][exercise_name] = total_weight
         category_map[exercise_name] = category
+        exercise_to_category[exercise_name] = category
 
     labels = [(start_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range((end_date - start_date).days + 1)]
 
@@ -149,7 +162,54 @@ def get_chart_data(start_date, end_date):
             'borderWidth': 1,
             'stack': 'stack1'
         })
-    return labels, datasets
+    return labels, datasets, category_map
+
+
+# ========================================
+# カテゴリ別直近2週間の合計重量を返すAPI
+# ========================================
+@app.route('/api/category-totals-14days')
+def category_totals_14days():
+    current_user_id = session.get("user_id")
+    if not current_user_id:
+        return jsonify({})
+
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=13)
+
+    results = (
+        db.session.query(
+            Exercise.category,
+            func.sum(WorkoutLog.sets * WorkoutLog.reps * WorkoutLog.weight).label("total_weight")
+        )
+        .select_from(WorkoutLog)
+        .join(Exercise, WorkoutLog.exercise_id == Exercise.id)
+        .filter(WorkoutLog.date.between(start_date, end_date))
+        .filter(WorkoutLog.user_id == current_user_id)
+        .group_by(Exercise.category)
+        .all()
+    )
+
+    # 70%目標値（2週間分）
+    targets_70 = {
+        "胸": 6300 * 2,
+        "背中": 6300 * 2,
+        "脚": 10500 * 2,
+        "肩": 4200 * 2,
+        "腕": 2800 * 2,
+        "腹筋": 1400 * 2,
+        "その他": 3500 * 2
+    }
+
+    # 正規化（スコア0〜100%）
+    scores = {}
+    for category, total in results:
+        target = targets_70.get(category, 1)
+        ratio = min(total / target * 100, 100)
+        scores[category] = round(ratio)
+
+    return jsonify(scores)
+
 
 # ========================================
 # トップページ "/" → 今日の年月へリダイレクト
@@ -161,7 +221,7 @@ def index():
 
     insert_initial_data()
     insert_sample_data()
-    return redirect_to_today()  # ログイン済みならカレンダー表示へ
+    return redirect_to_today()  # ログイン済みならトップページへ
 
 def redirect_to_today():
     """現在の日付を取得して、/年/月 にリダイレクト"""
@@ -182,7 +242,22 @@ def top_page(year, month):
     today = datetime.now()
     cal = calendar.Calendar(firstweekday=6)  # 日曜始まり
     month_days = cal.monthdayscalendar(year, month)
+     # ▼ 入力済み日をDBから取得
+    user_id = session.get('user_id')
+    start_date = date(year, month, 1)
+    # 月末を求める
+    if month == 12:
+        end_date = date(year + 1, 1, 1)
+    else:
+        end_date = date(year, month + 1, 1)
 
+    logs = WorkoutLog.query.filter(
+        WorkoutLog.user_id == user_id,
+        WorkoutLog.date >= start_date,
+        WorkoutLog.date < end_date
+    ).all()
+    # 入力済み日をリスト化（文字列 or 数値どちらでもOK）
+    filled_days = [log.date.day for log in logs]
     # 前月計算
     prev_month = month - 1
     prev_year = year
@@ -197,17 +272,19 @@ def top_page(year, month):
         next_month = 1
         next_year += 1
 
-
     # ▼ グラフ用データ生成（過去7日分）
     end_date = today.date()
     start_date = end_date - timedelta(days=6)
 
-    labels, datasets = get_chart_data(start_date, end_date)
+    labels, datasets, category_map = get_chart_data(start_date, end_date)
+
+    ordered_groups = get_grouped_exercises()
 
     return render_template(
         'index.html',
         labels=labels,
         datasets=datasets,  # ← グラフデータを渡す
+        category_map=category_map,  # 種目のカテゴリマップを渡す
         reverse_legend=True,
         year=year,
         month=month,
@@ -216,8 +293,68 @@ def top_page(year, month):
         prev_year=prev_year,
         prev_month=prev_month,
         next_year=next_year,
-        next_month=next_month
+        next_month=next_month,
+        grouped_exercises=ordered_groups,
+        filled_days=filled_days  # ← 追加
     )
+
+# ========================================
+# 特定のカテゴリ（部位）の種目を表示するページ
+# ========================================
+@app.route('/category/<category_name>')
+def show_category_exercises(category_name):
+    current_user_id = session.get("user_id")
+
+    # 英語 → 日本語カテゴリ変換マップ
+    category_map = {
+        'chest': '胸',
+        'shoulder': '肩',
+        'arm': '腕',
+        'back': '背中',
+        'abs': '腹筋',
+        'leg': '脚',
+        'other': 'その他'
+    }
+
+    jp_category = category_map.get(category_name)
+    if not jp_category:
+        return "カテゴリが見つかりません", 404
+
+    exercises_in_category = Exercise.query.filter_by(
+        category=jp_category,
+        is_deleted=False,
+        user_id=current_user_id
+    ).order_by(Exercise.order).all()
+
+    # Chart.js用のデータを取得（過去30日分）
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=29)
+
+    results = db.session.query(
+        WorkoutLog.date,
+        func.sum(WorkoutLog.sets * WorkoutLog.reps * WorkoutLog.weight).label('total_weight')
+    ).join(Exercise).filter(
+        WorkoutLog.date.between(start_date, end_date),
+        Exercise.category == jp_category,
+        WorkoutLog.user_id == current_user_id
+    ).group_by(WorkoutLog.date).order_by(WorkoutLog.date).all()
+
+    labels = []
+    values = []
+    for single_date in (start_date + timedelta(n) for n in range(30)):
+        labels.append(single_date.strftime('%Y-%m-%d'))
+        matching = next((total for d, total in results if d == single_date), 0)
+        values.append(matching if matching else 0)
+
+    return render_template(
+        'category_exercises.html',
+        category_en=category_name,
+        category_jp=jp_category,
+        exercises=exercises_in_category,
+        labels=labels,
+        values=values
+    )
+
 
 
 # ========================================
@@ -246,10 +383,10 @@ def exercise_settings():
             'detail': new_ex.detail,
             'category': new_ex.category
         }), 201
-
+    
 
     ordered_groups = get_grouped_exercises()
-
+        
     return render_template(
         'exercises_edit.html',
         grouped_exercises=ordered_groups
@@ -299,22 +436,33 @@ def show_diary(year, month, day):
         sets_list = request.form.getlist('sets')
         reps_list = request.form.getlist('reps')
         weight_list = request.form.getlist('weight')
-
+        comment = request.form.getlist('comment')
         for i in range(len(exercise_ids)):
-            if exercise_ids[i] and sets_list[i] and reps_list[i] and weight_list[i]:
+            if exercise_ids[i] and sets_list[i] and reps_list[i] and weight_list[i]and comment[i]:
                 log = WorkoutLog(
                     date=date_obj,
                     exercise_id=int(exercise_ids[i]),
                     sets=int(sets_list[i]),
                     reps=int(reps_list[i]),
                     weight=float(weight_list[i]),
+                    comment=str(comment[i]),
                     user_id=session.get("user_id")
+
                 )
                 db.session.add(log)
 
         db.session.commit()
         return redirect(url_for('show_diary', year=year, month=month, day=day))
 
+    # 表示時：登録済みのログと登録用の種目一覧
+    logs = WorkoutLog.query.filter_by(date=date_obj).all()
+
+    ordered_groups = get_grouped_exercises()
+
+    return render_template('training_log.html',
+                           year=year, month=month, day=day,
+                           logs=logs,
+                           grouped_exercises=ordered_groups)
     # 表示時：登録済みのログと登録用の種目一覧
     logs = WorkoutLog.query.filter_by(date=date_obj).all()
 
@@ -343,7 +491,6 @@ def delete_log_for_date(year, month, day):
 # ========================================
 # ユーザー管理機能（ログイン・個人情報）
 # ========================================
-
 @app.route('/form', methods=['GET', 'POST'])
 def form_page():
     form = PersonalInfoForm()
@@ -393,8 +540,39 @@ def mypage():
     if not user_id:
         flash("ログインしてください")
         return redirect(url_for('login'))
+    
     user = PersonalInfo.query.get(user_id)
-    return render_template('user_info.html', user=user)
+    
+    # user_info関数と同じロジックを追加
+    bench = Exercise.query.filter_by(name='ベンチプレス').first()
+    rift = Exercise.query.filter_by(name='デッドリフト').first()
+    squat = Exercise.query.filter_by(name='スクワット').first()
+    
+    core_exercises = {
+        'bench': bench,
+        'rift': rift,
+        'squat': squat
+    }
+    best_records = db.session.query(
+        WorkoutLog.exercise_id,         # 種目ID
+        Exercise.name,                  # 種目名
+        func.max(WorkoutLog.weight)     # 最大重量
+    ).join(Exercise).filter(
+        WorkoutLog.user_id == user.id,      # 対象ユーザーのログのみ
+        Exercise.is_deleted == False        # 削除されていない種目のみ
+    ).group_by(
+        WorkoutLog.exercise_id, Exercise.name
+    ).all()
+
+    best_weights = {ex_id: {'name': name, 'weight': weight} for ex_id, name, weight in best_records}
+    
+    # テンプレートにcore_exercisesを渡す
+    return render_template(
+    'user_info.html',
+    user=user,
+    core_exercises=core_exercises,
+    best_weights=best_weights
+)
 
 @app.route('/start', methods=["GET", "POST"])
 def start():
@@ -402,18 +580,201 @@ def start():
     login_form = LoginForm()
     return render_template("start.html", register_form=register_form, login_form=login_form)
 
-
+#ここからベスト記録
 @app.route('/user/<int:user_id>')
 def user_info(user_id):
+    # 1. ユーザー情報取得（存在しない場合は404）
     user = PersonalInfo.query.get_or_404(user_id)
-    return render_template("user_info.html", user=user)
+
+    # 2. ベスト記録（種目ごとの最大重量）
+    best_records = db.session.query(
+        WorkoutLog.exercise_id,         # 種目ID
+        Exercise.name,                  # 種目名
+        func.max(WorkoutLog.weight)     # 最大重量
+    ).join(Exercise).filter(
+        WorkoutLog.user_id == user.id,      # 対象ユーザーのログのみ
+        Exercise.is_deleted == False        # 削除されていない種目のみ
+    ).group_by(
+        WorkoutLog.exercise_id, Exercise.name
+    ).all()
+
+    # → {exercise_id: {'name': 種目名, 'weight': 最大重量}}
+    best_weights = {ex_id: {'name': name, 'weight': weight} for ex_id, name, weight in best_records}
+
+    bench = Exercise.query.filter_by(name='ベンチプレス').first()
+    rift = Exercise.query.filter_by(name='デッドリフト').first()
+    squat = Exercise.query.filter_by(name='スクワット').first()
+
+    core_exercises = {
+        'bench': bench,
+        'rift': rift,
+        'squat': squat
+    }
+
+
+
+
+
+    # 4. user_info.html にデータを渡す
+    return render_template(
+        'user_info.html',
+        user=user,
+        best_weights=best_weights,
+        core_exercises=core_exercises
+    )
 
 # ========================================
-# 週別の合計重量をグラフ表示
+# 週別のトレーニング記録を表示（グラフ、割合）
 # ========================================
+# 週の範囲を指定して記録を表示（例: /chart）
+@app.route('/chart')
+def weekly_data():
+    today = datetime.now().date()
+    sunday = today - timedelta(days=(today.weekday() + 1) % 7)  # 日曜始まり
+    return redirect(url_for('weekly_report', week_range=f"{sunday.strftime('%Y-%m-%d')}~{(sunday + timedelta(days=6)).strftime('%Y-%m-%d')}"))
 
+# 週の範囲を指定してグラフ表示（例: /chart/week/2025-07-27~2025-08-02）
+@app.route('/weekly_report/<week_range>')
+def weekly_report(week_range):
+    try:
+        # '2025-07-27~2025-08-02' 形式でパース
+        start_str, end_str = week_range.split('~')
+        start_date = datetime.strptime(start_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_str, '%Y-%m-%d').date()
+    except ValueError:
+        return "Invalid week range format. Use YYYY-MM-DD~YYYY-MM-DD.", 400
+
+    labels, datasets, category_map = get_chart_data(start_date, end_date)
+
+    # カテゴリ別の合計重量を計算
+    from collections import defaultdict
+    category_totals = defaultdict(float)
+    category_exercise_ratios = defaultdict(lambda: defaultdict(float))
+    for dataset in datasets:
+        exercise = dataset['label']
+        category = category_map.get(exercise, 'その他')
+        for value in dataset['data']:
+            category_totals[category] += value
+            category_exercise_ratios[category][exercise] += value
+
+    # 表示順をカテゴリ順で固定
+    category_order = ['胸', '肩', '腕', '背中', '腹筋', '脚', 'その他']
+    ordered_category_totals = {cat: category_totals[cat] for cat in category_order if cat in category_totals}
+    ordered_category_ratios = {cat: category_exercise_ratios[cat] for cat in category_order if cat in category_exercise_ratios}
+
+    # 前週・次週のURL作成
+    prev_start = (start_date - timedelta(weeks=1)).strftime('%Y-%m-%d')
+    prev_end = (end_date - timedelta(weeks=1)).strftime('%Y-%m-%d')
+
+    next_start_date = start_date + timedelta(weeks=1)
+    next_end_date = end_date + timedelta(weeks=1)
+    today = datetime.now().date()
+    next_url = None
+    if next_start_date <= today:
+        next_url = url_for('weekly_report', week_range=f"{next_start_date.strftime('%Y-%m-%d')}~{next_end_date.strftime('%Y-%m-%d')}")
+
+    return render_template(
+        'weekly_report.html',
+        labels=labels,
+        datasets=datasets,
+        category_map=category_map,
+        reverse_legend=True,
+        week_range=f"{start_date.strftime('%Y/%m/%d')}〜{end_date.strftime('%Y/%m/%d')}",
+        prev_url=url_for('weekly_report', week_range=f"{prev_start}~{prev_end}"),
+        next_url=next_url,
+        category_totals=ordered_category_totals,
+        category_exercise_ratios=ordered_category_ratios
+    )
+
+# ========================================
+# 筋肉部位ごとの直近1週間の合計重量を返すAPI
+# ========================================
+@app.route('/api/muscle-status')
+def get_muscle_status():
+    current_user_id = session.get("user_id")
+    if not current_user_id:
+        return jsonify({})  # 未ログインなら空データ
+
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=6)
+
+    # カテゴリ別の合計重量を集計
+    results = (
+        db.session.query(
+            Exercise.category,
+            func.sum(WorkoutLog.sets * WorkoutLog.reps * WorkoutLog.weight).label("total_weight")
+        )
+        .select_from(WorkoutLog)
+        .join(Exercise, WorkoutLog.exercise_id == Exercise.id)
+        .filter(WorkoutLog.date.between(start_date, end_date))
+        .filter(WorkoutLog.user_id == current_user_id)
+        .group_by(Exercise.category)
+        .all()
+    )
+
+    # カテゴリIDと紐づけ（SVG側と一致させる）
+    category_id_map = {
+        "胸": "chest",
+        "肩": "shoulder",
+        "腕": "arm",
+        "背中": "back",
+        "腹筋": "abs",
+        "脚": "leg"
+    }
+
+    status = {}
+    for category, total_weight in results:
+        svg_id = category_id_map.get(category)
+        if svg_id:
+            status[svg_id] = total_weight
+
+    return jsonify(status)
+#ここから難易度選択
+@app.route('/select')
+def select():
+    return render_template('select_level.html')
+
+@app.route('/level', methods=['POST'])
+def level():
+    print("--- level関数が呼び出されました ---")
+    difficulty = request.form.get('difficulty')
+    custom_value = request.form.get('custom_value')
+    print(f"受け取ったデータ: difficulty={difficulty}, custom_value={custom_value}")
+
+    user_id = session.get('user_id')
+    if not user_id:
+        print("エラー: ユーザーがログインしていません")
+        flash("ログインしてください")
+        return redirect(url_for('login'))
+
+    user = PersonalInfo.query.get(user_id)
+    user.difficulty = difficulty
+
+    level_map = {
+        'beginner': 60,
+        'intermediate': 120,
+        'advanced': 180
+    }
+
+    if difficulty in level_map:
+        user.custom_number = level_map[difficulty]
+    elif difficulty == 'custom' and custom_value:
+        try:
+            user.custom_number = float(custom_value)
+        except ValueError:
+            user.custom_number = None
+    else:
+        user.custom_number = None
+
+    print(f"ユーザーID {user_id} の difficulty を {user.difficulty} に、custom_number を {user.custom_number} に設定しました")
+
+    db.session.commit()
+    print("--- データベースにコミットが完了しました ---")
+
+    flash(f"難易度: {difficulty}、カスタム値: {user.custom_number}", "success")
+    return redirect(url_for('mypage'))
 # ========================================
 # 実行
 # ========================================
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(port=5001, debug=True)

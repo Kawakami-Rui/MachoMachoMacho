@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>難易度選択</title>
+</head>
+<body>
+  <h1>難易度を選んでください</h1>
+
+  <form action="{{ url_for('level') }}" method="POST" id="level-form">
+    <button type="submit" name="difficulty" value="beginner">初級</button>
+    <button type="submit" name="difficulty" value="intermediate">中級</button>
+    <button type="submit" name="difficulty" value="advanced">上級</button>
+    
+    <div style="margin-top:20px;">
+      <label for="custom-input">カスタム:</label>
+      <input type="number" id="custom-input" name="custom_value" placeholder="数値を入力" />
+      <button type="submit" name="difficulty" value="custom">決定</button>
+    </div>
+  </form>
+
+</body>
+</html>
