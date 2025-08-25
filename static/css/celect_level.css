@@ -81,3 +81,14 @@ h1, h2 {
 .custom-input button:hover {
   background-color: #1976d2;
 }
+
+.back-to-index {
+    text-align: center;
+    margin-top: 3em;
+}
+
+.back-to-index a {
+    color: #2ecc71;
+    font-weight: bold;
+    text-decoration: none;
+}
